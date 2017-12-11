@@ -34,22 +34,19 @@ public class BlueprintBeanRouteTest extends CamelBlueprintTestSupport {
 //		
 //	}
 //
-	@After
-	public void tearDown() {
-		//broker.shutdown();
-	}
+//	@After
+//	public void tearDown() {
+//		//broker.shutdown();
+//	}
 
 	@Test
-	public void testRoute() throws Exception {
-		//template.sendBody("amqp:queue:ingest", "Hello World");
+	public void testRoute() throws Exception {  
 		try {
 			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", "Hello World",  "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}
 		
-		// the route is timer based, so every 5th second a message is send
-		// we should then expect at least one message
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMinimumMessageCount(1);
 
