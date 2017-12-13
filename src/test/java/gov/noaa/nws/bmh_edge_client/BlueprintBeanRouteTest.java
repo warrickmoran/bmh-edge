@@ -1,12 +1,11 @@
 package gov.noaa.nws.bmh_edge_client;
 
 import org.apache.camel.CamelExecutionException;
-import org.apache.camel.component.jms.JmsConstants;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -15,12 +14,6 @@ import gov.noaa.nws.qpid_server.EmbeddedBroker;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
-import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-//import java.util.stream.Collectors;
-//import java.util.stream.Stream;
 
 public class BlueprintBeanRouteTest extends CamelBlueprintTestSupport {
 	private static EmbeddedBroker broker ;
@@ -36,7 +29,6 @@ public class BlueprintBeanRouteTest extends CamelBlueprintTestSupport {
 			// to remove thrift warning
 			System.setProperty("thrift.stream.maxsize", "200");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -45,15 +37,6 @@ public class BlueprintBeanRouteTest extends CamelBlueprintTestSupport {
 	protected String getBlueprintDescriptor() {
 		return "/OSGI-INF/blueprint/blueprint-bean.xml";
 	}
-//
-//	@Before
-//	public void setUp() {
-//	}
-//
-//	@After
-//	public void tearDown() {
-//		//broker.shutdown();
-//	}
 
 	@Test
 	public void testRoute() throws Exception {  
