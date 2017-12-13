@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>5.2.12.Final</version>
+			<version>4.2.15.Final</version>
 		</dependency>
 
 		<!-- Apache Commons -->
@@ -83,6 +83,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.6</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.3</version>
 		</dependency>
 
 		<!-- Apache Thrift -->
@@ -99,7 +104,8 @@
 			<version>3.2.5</version>
 		</dependency>
 
-		<!-- ASM to support SerilizationUtility (bytecode manipulation and analysis framework) -->
+		<!-- ASM to support SerilizationUtility (bytecode manipulation and analysis 
+			framework) -->
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-all</artifactId>
@@ -133,6 +139,20 @@
 	</dependencies>
 
 	<build>
+		<pluginManagement>
+		<!-- to avoid issues with compiling internel rt.jar classes -->
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.2</version>
+					<configuration>
+						<fork>true</fork>
+						<compilerArgument>-XDignore.symbol.file</compilerArgument>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 
 			<!-- compiler plugin -->
