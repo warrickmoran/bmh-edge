@@ -71,6 +71,41 @@
 			<artifactId>camel-amqp</artifactId>
 		</dependency>
 
+		<!-- Hibernate -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.2.12.Final</version>
+		</dependency>
+
+		<!-- Apache Commons -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.6</version>
+		</dependency>
+
+		<!-- Apache Thrift -->
+		<dependency>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>0.9.0</version>
+		</dependency>
+
+		<!-- CGLib (Code Generation Library) -->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>3.2.5</version>
+		</dependency>
+
+		<!-- ASM to support SerilizationUtility (bytecode manipulation and analysis framework) -->
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-all</artifactId>
+			<version>5.2</version>
+		</dependency>
+
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>

@@ -12,6 +12,8 @@
 			<cm:property name="greeting" value="Hi from Camel" />
 		</cm:default-properties>
 	</cm:property-placeholder>
+	
+	<!-- AWIPS Spring Bean Definitions are located here: edex.registry.ebxml.webServiceBeans.xml -->
 
 	<bean id="helloBean" class="gov.noaa.nws.bmh_edge_client.HelloBean">
 		<property name="say" value="${greeting}" />
@@ -28,16 +30,15 @@
 	<bean id="amqp" class="org.apache.camel.component.amqp.AMQPComponent">
 		<property name="connectionFactory" ref="jmsConnectionFactory" />
 	</bean>
+	
+	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility"/>
 
 	<camelContext id="blueprint-bean-context"
 		xmlns="http://camel.apache.org/schema/blueprint">
-		<route id="timerToLog">
-<!-- 			<from uri="timer:foo?period=5000" /> -->
-			<from uri="amqp:queue:ingest" />	
-			<setBody>
-				<method ref="helloBean" method="hello" />
-			</setBody>
-			<log message="The message contains ${body}" />
+		<route id="bmh-edge-ingest">
+			<from uri="amqp:queue:ingest" />
+			<log message="The message contains ${body}" />	
+			<bean ref="serializationUtil" method="deserialize"/>
 			<to uri="mock:result" />
 		</route>
 	</camelContext>
