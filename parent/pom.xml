@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<groupId>gov.noaa.nws</groupId>
+	<artifactId>bhm-edge</artifactId>
+	<version>0.1</version>
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<packaging>pom</packaging>
+	<name>BMH-EDGE :: Parent</name>
+	<description>BMH Edge Parent POM</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<camel-version>2.21.0-SNAPSHOT</camel-version>
+		<qpid-version>7.0.0</qpid-version>
+	</properties>
+
+	<modules>
+		<module>../bmh-edge-awips</module>
+		<module>../bmh-edge-spring-boot</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>apache.snapshots</id>
+			<url>http://repository.apache.org/snapshots/</url>
+			<name>Apache Snapshot Repo</name>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apache.snapshots</id>
+			<url>http://repository.apache.org/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Camel BOM -->
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-parent</artifactId>
+				<version>${camel-version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+
+			<!-- Camel -->
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-amqp</artifactId>
+				<version>${camel-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-jms</artifactId>
+				<version>${camel-version}</version>
+			</dependency>
+
+			<!-- QPid Broker -->
+			<!-- Note that the below is qpid-broker-core and *not* qpid-broker. -->
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-core</artifactId>
+				<version>${qpid-version}</version>
+			</dependency>
+			<!-- AMQP protocol support is modular. Here we show support for 0-8/0-9 
+				and 1.0. Support for 0-10 is excluded. -->
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-plugins-amqp-0-8-protocol</artifactId>
+				<version>${qpid-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-plugins-amqp-1-0-protocol</artifactId>
+				<version>${qpid-version}</version>
+			</dependency>
+			<!-- If a different store type is required it needs to be included here -->
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-plugins-memory-store</artifactId>
+				<version>${qpid-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<!-- to avoid issues with compiling internel rt.jar classes -->
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.2</version>
+					<configuration>
+						<fork>true</fork>
+						<compilerArgument>-XDignore.symbol.file</compilerArgument>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+
+			<!-- compiler plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project> 
+

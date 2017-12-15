@@ -1,0 +1,36 @@
+# the name of Camel
+camel:
+  springboot:
+    name: SampleCamel
+
+# to automatic shutdown the JVM after a period of time
+#camel.springboot.duration-max-seconds=60
+#camel.springboot.duration-max-messages=100
+
+# add for example: &repeatCount=5 to the timer endpoint to make Camel idle
+#camel.springboot.duration-max-idle-seconds=15
+
+# properties used in the Camel route and beans
+# --------------------------------------------
+
+# what to say
+greeting: Hello World YML
+
+# how often to trigger the timer
+timer:
+  period: 2000
+
+# all access to actuator endpoints without security
+management:
+  security:
+    enabled: false
+# turn on actuator health check
+endpoints:
+  health:
+    enabled: true
+
+# to configure logging levels
+#logging.level.org.springframework = INFO
+#logging.level.org.apache.camel.spring.boot = INFO
+#logging.level.org.apache.camel.impl = DEBUG
+#logging.level.sample.camel = DEBUG

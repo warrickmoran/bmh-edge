@@ -15,10 +15,6 @@
 	
 	<!-- AWIPS Spring Bean Definitions are located here: edex.registry.ebxml.webServiceBeans.xml -->
 
-	<bean id="helloBean" class="gov.noaa.nws.bmh_edge_client.HelloBean">
-		<property name="say" value="${greeting}" />
-	</bean>
-
 	<!-- JMS QPid Proton Configuration -->
 	<bean id="jmsConnectionFactory" class="org.apache.qpid.jms.JmsConnectionFactory">
 		<property name="remoteURI" value="amqp://localhost:5672" />
