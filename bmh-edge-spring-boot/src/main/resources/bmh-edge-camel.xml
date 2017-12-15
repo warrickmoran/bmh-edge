@@ -27,6 +27,8 @@
 		<property name="connectionFactory" ref="jmsConnectionFactory" />
 	</bean>
 	
+	<bean id="objectUtil" class="gov.noaa.nws.bmh_edge.utility.ObjectUtils"/>
+	
 	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility"/>
 
 	<camelContext id="BmhEdge" xmlns="http://camel.apache.org/schema/spring">
@@ -47,6 +49,7 @@
 			<log message="The message contains ${body}" />
 			<bean ref="serializationUtil" method="deserialize" />
 			<to uri="mock:result" />
+			<bean ref="objectUtil" method="printFiledNamesAndValues"/>
 		</route>
 	</camelContext>
 

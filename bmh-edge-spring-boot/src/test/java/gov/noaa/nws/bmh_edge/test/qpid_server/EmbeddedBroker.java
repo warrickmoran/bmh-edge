@@ -1,10 +1,12 @@
-package gov.noaa.nws.qpid_server;
+package gov.noaa.nws.bmh_edge.test.qpid_server;
 
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
  
 import org.apache.qpid.server.SystemLauncher;
+
+import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
  
 public class EmbeddedBroker
 {

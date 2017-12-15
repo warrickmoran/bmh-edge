@@ -1,4 +1,4 @@
-package gov.noaa.nws.bmh_edge_client;
+package gov.noaa.nws.bmh_edge.test.bmh_edge_client;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelExecutionException;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
-import gov.noaa.nws.qpid_server.EmbeddedBroker;
+import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
 import sample.camel.SampleCamelApplication;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
