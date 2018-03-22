@@ -32,18 +32,6 @@
 	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility"/>
 
 	<camelContext id="BmhEdge" xmlns="http://camel.apache.org/schema/spring">
-		<route id="hello">
-			<from uri="timer:hello?period={{timer.period}}" />
-			<transform>
-				<method ref="myBean" method="saySomething" />
-			</transform>
-			<filter>
-				<simple>${body} contains 'foo'</simple>
-				<to uri="log:foo" />
-			</filter>
-			<to uri="stream:out" />
-		</route>
-		
 		<route id="bmh-ingest">
 			<from uri="amqp:queue:ingest" />
 			<log message="The message contains ${body}" />
