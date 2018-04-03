@@ -69,10 +69,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-undertow</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-actuator</artifactId>
@@ -87,6 +84,21 @@
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-stream-starter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-http4</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.mina/mina-filter-ssl -->
+		<dependency>
+    		<groupId>org.apache.mina</groupId>
+    		<artifactId>mina-filter-ssl</artifactId>
+    		<version>1.1.7</version>
+		</dependency>
+		
 
 		<!-- test -->
 		<dependency>

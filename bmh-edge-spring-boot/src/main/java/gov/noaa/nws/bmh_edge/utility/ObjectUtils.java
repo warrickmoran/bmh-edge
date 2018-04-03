@@ -32,11 +32,13 @@ public class ObjectUtils {
 	}
 	
 	// Print fields and values from an Object 
-	public static void printFieldNamesAndValues(final Object obj, boolean publicOnly) throws IllegalArgumentException, IllegalAccessException {
+	public static StringBuffer printFieldNamesAndValues(final Object obj, boolean publicOnly) throws IllegalArgumentException, IllegalAccessException {
+		StringBuffer ret = new StringBuffer(ObjectUtils.getFieldNamesAndValues(obj,publicOnly).toString());
 		System.out.println(ObjectUtils.getFieldNamesAndValues(obj,publicOnly));
+		return ret;
 	}
 	
-	public static void printFiledNamesAndValues(final Object obj) throws IllegalArgumentException, IllegalAccessException {
-		printFieldNamesAndValues(obj, true);
+	public static StringBuffer printFiledNamesAndValues(final Object obj) throws IllegalArgumentException, IllegalAccessException {
+		return printFieldNamesAndValues(obj, true);
 	}
 }

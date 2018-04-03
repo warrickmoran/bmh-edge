@@ -1,7 +1,13 @@
 # the name of Camel
 camel:
   springboot:
-    name: SampleCamel
+    name: BMHEDGE
+    path: /bmh
+    
+spring:
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
 
 # to automatic shutdown the JVM after a period of time
 #camel.springboot.duration-max-seconds=60
@@ -15,21 +21,39 @@ camel:
 
 # what to say
 greeting: Hello World YML
+qpid_host: localhost
 
 # how often to trigger the timer
 timer:
   period: 2000
+  
+component:
+    servlet:
+      mapping:
+        contextPath: /bmh/*
 
 # all access to actuator endpoints without security
 management:
+  address: 0.0.0.0
+  port: 8081
   security:
     enabled: false
 # turn on actuator health check
 endpoints:
+  enabled: true
   health:
     enabled: true
-
+  camelroutes:
+    enabled: true
+    read-only: true
+    
 # to configure logging levels
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    guru.springframework.controllers: DEBUG
+    org.hibernate: DEBUG
 #logging.level.org.springframework = INFO
 #logging.level.org.apache.camel.spring.boot = INFO
 #logging.level.org.apache.camel.impl = DEBUG

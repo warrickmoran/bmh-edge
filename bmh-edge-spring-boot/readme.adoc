@@ -35,6 +35,12 @@ To show detailed information for a specific route
 curl -XGET -s http://localhost:8080/camel/routes/{id}/info
 ----
 
+View BMH Status
+----
+http://localhost:8080/bmh/status
+http://localhost:8080/bmh/playlist
+----
+
 
 ## More information
 

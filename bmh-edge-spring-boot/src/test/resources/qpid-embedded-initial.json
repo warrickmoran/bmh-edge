@@ -21,7 +21,11 @@
 	[
 		{
 			"name": "AMQP",
-			"port": "${qpid.amqp_port}",
+			"port": "5673",
+			"transport": "SSL",
+            "trustStore": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27279",
+            "keyStores": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27278",
+            "clientCertificateAuthType":  "NEED",
 			"protocols": 
 			[
 				"AMQP_0_9",
@@ -30,6 +34,7 @@
 			],
 
 			"authenticationProvider": "Scram",
+	
 			"virtualhostaliases": 
 			[
 				{
@@ -58,5 +63,23 @@
 			"defaultVirtualHostNode": "true",
 			"virtualHostInitialConfiguration": "{\"Durable\": \"true\", \"type\": \"Memory\", \"nodeAutoCreationPolicies\": [{\"pattern\":\".*\",\"createdOnPublish\":\"true\",\"createdOnConsume\":\"true\",\"nodeType\":\"queue\",\"attributes\":{}}] }"
 		}
-	]
+	],
+	"keyStores": [
+    {
+        "id": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27278",
+        "attributes": {
+          "path": "/Docker/certs/client_1.jks" ,
+          "password": "h2u3b455"
+        }
+    }
+    ],
+    "trustStores": [
+    {
+          "id": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27279",
+          "attributes": {
+              "path": "/Docker/certs/mytruststore.jks",
+              "password": "h2u3b455"
+          }
+    }
+   ]
 }

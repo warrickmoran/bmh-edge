@@ -16,8 +16,12 @@
  */
 package sample.camel;
 
+import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 
 //CHECKSTYLE:OFF
@@ -28,12 +32,22 @@ import org.springframework.context.annotation.ImportResource;
 // load the spring xml file from classpath
 @ImportResource("classpath:bmh-edge-camel.xml")
 public class SampleCamelApplication {
+	
+	@Value("${camel.springboot.path}")
+	String contextPath;
 
     /**
      * A main method to start this application.
      */
     public static void main(String[] args) {
         SpringApplication.run(SampleCamelApplication.class, args);
+    }
+    
+    @Bean
+    ServletRegistrationBean servletRegistrationBean() {
+        ServletRegistrationBean servlet = new ServletRegistrationBean(new CamelHttpTransportServlet(), contextPath+"/*");
+        servlet.setName("CamelServlet");
+        return servlet;
     }
 
 }

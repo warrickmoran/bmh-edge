@@ -17,27 +17,65 @@
 
 	<!-- JMS QPid Proton Configuration -->
 	<bean id="jmsConnectionFactory" class="org.apache.qpid.jms.JmsConnectionFactory">
-		<property name="remoteURI" value="amqp://localhost:5672" />
-		<property name="username" value="admin" />
-		<property name="password" value="admin" />
+		<property name="remoteURI" value="amqp://${qpid_host}:5672" />
+		<property name="username" value="guest" />
+		<property name="password" value="guest" />
 	</bean>
 
 	<!-- Camel AMQP Component configuration -->
 	<bean id="amqp" class="org.apache.camel.component.amqp.AMQPComponent">
 		<property name="connectionFactory" ref="jmsConnectionFactory" />
 	</bean>
-	
-	<bean id="objectUtil" class="gov.noaa.nws.bmh_edge.utility.ObjectUtils"/>
-	
-	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility"/>
+
+	<bean id="objectUtil" class="gov.noaa.nws.bmh_edge.utility.ObjectUtils" />
+
+	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility" />
 
 	<camelContext id="BmhEdge" xmlns="http://camel.apache.org/schema/spring">
+		<rest>
+			<get uri="/hello">
+				<to uri="direct:hello" />
+			</get>
+			<get uri="/bye" consumes="application/json">
+				<to uri="direct:bye" />
+			</get>
+			<get uri="status" consumes="application/vnd.spring-boot.actuator.v1+json">
+				<to uri="direct:status" />
+			</get>
+			<post uri="/bye">
+				<to uri="mock:update" />
+			</post>
+		</rest>
+		
 		<route id="bmh-ingest">
 			<from uri="amqp:queue:ingest" />
 			<log message="The message contains ${body}" />
 			<bean ref="serializationUtil" method="deserialize" />
 			<to uri="mock:result" />
-			<bean ref="objectUtil" method="printFiledNamesAndValues"/>
+			<bean ref="objectUtil" method="printFiledNamesAndValues" />
+		</route>
+		
+		<route>
+			<from uri="direct:hello" />
+			<transform>
+				<constant>Hello World</constant>
+			</transform>
+		</route>
+		<route>
+			<from uri="direct:bye" />
+			<transform>
+				<constant>Bye World</constant>
+			</transform>
+		</route>
+		<route>
+			<from uri="direct:status" />
+			<setHeader headerName="CamelHttpMethod">
+      			<constant>GET</constant>
+    		</setHeader>
+    		<to uri="http4://localhost:8081/info?bridgeEndpoint=true"/>
+    		<transform>
+    			<simple>${body}</simple>
+    		</transform>
 		</route>
 	</camelContext>
 
