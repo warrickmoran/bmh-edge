@@ -21,7 +21,9 @@ spring:
 
 # what to say
 greeting: Hello World YML
-qpid_host: localhost
+bmh:
+  qpid_host: bmh2
+  queue: BMH.Transform
 
 # how often to trigger the timer
 timer:

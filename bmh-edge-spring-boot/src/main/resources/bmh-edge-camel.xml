@@ -17,7 +17,7 @@
 
 	<!-- JMS QPid Proton Configuration -->
 	<bean id="jmsConnectionFactory" class="org.apache.qpid.jms.JmsConnectionFactory">
-		<property name="remoteURI" value="amqp://${qpid_host}:5672" />
+		<property name="remoteURI" value="amqp://${bmh.qpid_host}:5672" />
 		<property name="username" value="guest" />
 		<property name="password" value="guest" />
 	</bean>
@@ -48,7 +48,7 @@
 		</rest>
 		
 		<route id="bmh-ingest">
-			<from uri="amqp:queue:ingest" />
+			<from uri="amqp:queue:{{bmh.queue}}" />
 			<log message="The message contains ${body}" />
 			<bean ref="serializationUtil" method="deserialize" />
 			<to uri="mock:result" />
