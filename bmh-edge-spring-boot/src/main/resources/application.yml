@@ -4,6 +4,7 @@ camel:
     name: BMHEDGE
     path: /bmh
     
+# configure h2 web service (http://localhost:8080/h2-console)
 spring:
   h2:
     console:
@@ -21,9 +22,6 @@ spring:
 
 # properties used in the Camel route and beans
 # --------------------------------------------
-
-# what to say
-greeting: Hello World YML
 bmh:
   qpid_host: bmh2
   queue: BMH.Transform
@@ -55,6 +53,10 @@ endpoints:
     
 # to configure logging levels
 logging:
+  file: logs/bmh_edge.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: INFO
     org.springframework.web: DEBUG
