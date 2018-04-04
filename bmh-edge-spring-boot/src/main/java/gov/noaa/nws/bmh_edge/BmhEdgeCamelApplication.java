@@ -14,15 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample.camel;
+package gov.noaa.nws.bmh_edge;
 
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
+
+import gov.noaa.nws.bmh_edge.h2.entity.BroadcastRepository;
 
 //CHECKSTYLE:OFF
 /**
@@ -30,17 +34,21 @@ import org.springframework.context.annotation.ImportResource;
  */
 @SpringBootApplication
 // load the spring xml file from classpath
+@ComponentScan("gov.noaa.nws.bmh_edge.h2.entity")
 @ImportResource("classpath:bmh-edge-camel.xml")
-public class SampleCamelApplication {
+public class BmhEdgeCamelApplication {
 	
 	@Value("${camel.springboot.path}")
 	String contextPath;
+	
+	@Autowired
+	BroadcastRepository repository;
 
     /**
      * A main method to start this application.
      */
     public static void main(String[] args) {
-        SpringApplication.run(SampleCamelApplication.class, args);
+        SpringApplication.run(BmhEdgeCamelApplication.class, args);
     }
     
     @Bean

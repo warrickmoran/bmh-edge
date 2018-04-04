@@ -17,13 +17,13 @@ import java.util.stream.Stream;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
+import gov.noaa.nws.bmh_edge.BmhEdgeCamelApplication;
 import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
-import sample.camel.SampleCamelApplication;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
 @RunWith(CamelSpringBootRunner.class)
-@SpringBootTest(classes = SampleCamelApplication.class)
+@SpringBootTest(classes = BmhEdgeCamelApplication.class)
 @EnableRouteCoverage
 public class QPidBrokerRouteTest extends CamelTestSupport {
 	private static EmbeddedBroker broker ;

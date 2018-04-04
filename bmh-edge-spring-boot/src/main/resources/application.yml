@@ -5,6 +5,9 @@ camel:
     path: /bmh
     
 spring:
+  h2:
+    console:
+      enabled: true
   jackson:
     serialization:
       INDENT_OUTPUT: true
@@ -33,6 +36,7 @@ component:
     servlet:
       mapping:
         contextPath: /bmh/*
+       
 
 # all access to actuator endpoints without security
 management:
