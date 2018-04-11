@@ -4,16 +4,9 @@
 	"authenticationproviders": 
 	[
 		{
-			"name": "Scram",
-			"type": "SCRAM-SHA-256",
-			"users": 
-			[
-				{
-					"name": "admin",
-					"type": "managed",
-					"password": "RlZheCx8NY5fmWpshDA2P1gULzLPA8GtoCe5uJgr4ms=,,mnHeeEsCki4ql4slKwooAncju7cL+5QLSxhUMzmvMJw=,z95S+Lmz5v5mESAmov1mJZN17310oMuAPyJIWtg4gBo=,4096"
-				}
-			]
+			"id": "d796f456-5ddc-47ec-af55-0e7b75fdd741",
+			"name": "anonymous",
+			"type": "Anonymous"
 		}
 	],
 
@@ -21,20 +14,11 @@
 	[
 		{
 			"name": "AMQP",
-			"port": "5673",
-			"transport": "SSL",
-            "trustStore": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27279",
-            "keyStores": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27278",
-            "clientCertificateAuthType":  "NEED",
-			"protocols": 
-			[
-				"AMQP_0_9",
-				"AMQP_0_9_1",
-				"AMQP_1_0"
-			],
-
-			"authenticationProvider": "Scram",
-	
+			"port": "5672",
+			"sendBufferSize": "16384",
+			"receiveBufferSize": "32768",
+			"protocols": [ "AMQP_0_9", "AMQP_0_9_1", "AMQP_1_0" ],
+			"authenticationProvider": "anonymous",
 			"virtualhostaliases": 
 			[
 				{
@@ -63,23 +47,5 @@
 			"defaultVirtualHostNode": "true",
 			"virtualHostInitialConfiguration": "{\"Durable\": \"true\", \"type\": \"Memory\", \"nodeAutoCreationPolicies\": [{\"pattern\":\".*\",\"createdOnPublish\":\"true\",\"createdOnConsume\":\"true\",\"nodeType\":\"queue\",\"attributes\":{}}] }"
 		}
-	],
-	"keyStores": [
-    {
-        "id": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27278",
-        "attributes": {
-          "path": "/Docker/certs/client_1.jks" ,
-          "password": "h2u3b455"
-        }
-    }
-    ],
-    "trustStores": [
-    {
-          "id": "c7038ed9-9ba9-4db1-bc56-ab6c3ab27279",
-          "attributes": {
-              "path": "/Docker/certs/mytruststore.jks",
-              "password": "h2u3b455"
-          }
-    }
-   ]
+	]
 }

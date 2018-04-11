@@ -49,10 +49,10 @@
 		
 		<route id="bmh-ingest">
 			<from uri="amqp:queue:{{bmh.queue}}" />
-			<log message="The message contains ${body}" />
 			<bean ref="serializationUtil" method="deserialize" />
-			<to uri="mock:result" />
+			<log message="The message contains ${body}" />
 			<bean ref="objectUtil" method="printFiledNamesAndValues" />
+			<to uri="mock:result" />
 		</route>
 		
 		<route>
