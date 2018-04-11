@@ -34,13 +34,13 @@ import gov.noaa.nws.bmh_edge.h2.entity.BroadcastRepository;
  */
 @SpringBootApplication
 // load the spring xml file from classpath
-@ComponentScan("gov.noaa.nws.bmh_edge.h2.entity")
 @ImportResource("classpath:bmh-edge-camel.xml")
 public class BmhEdgeCamelApplication {
 	
 	@Value("${camel.springboot.path}")
 	String contextPath;
 	
+	// auto wire BroadcastMessage into repository with queries 
 	@Autowired
 	BroadcastRepository repository;
 
