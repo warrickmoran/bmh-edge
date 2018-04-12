@@ -28,8 +28,10 @@ google:
 # properties used in the Camel route and beans
 # --------------------------------------------
 bmh:
-  qpid_host: localhost
-  queue: ingest
+  #qpid_host: localhost
+  qpid_host: bmh2
+  #queue: ingest
+  queue: BMH.EDGE
 
 # how often to trigger the timer
 timer:
