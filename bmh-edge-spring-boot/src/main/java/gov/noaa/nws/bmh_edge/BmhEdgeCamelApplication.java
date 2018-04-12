@@ -43,6 +43,11 @@ public class BmhEdgeCamelApplication {
 	// auto wire BroadcastMessage into repository with queries 
 	@Autowired
 	BroadcastRepository repository;
+	
+	// prevent thrift NumberFormat exception
+	static {
+		System.setProperty("thrift.stream.maxsize", "200");
+	}
 
     /**
      * A main method to start this application.
