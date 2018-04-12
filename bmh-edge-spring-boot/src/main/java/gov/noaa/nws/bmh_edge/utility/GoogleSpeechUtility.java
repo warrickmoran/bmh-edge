@@ -12,12 +12,12 @@ import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 public class GoogleSpeechUtility {
 	static private String apiKey;
 
-	static public ByteString createTextToSpeechBean(String content) throws Exception {
-		ByteString ret = SynthesizeText.synthesizeText(content.toString());
+	static public String createTextToSpeechBean(String content) throws Exception {
+		String ret = SynthesizeText.synthesizeText(content.toString());
 		return ret;
 	}
 
-	static public ByteString createTextToSpeechBean(BroadcastMsg message) throws Exception {
+	static public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
 		return createTextToSpeechBean(message.getInputMessage().getContent());
 	}
 

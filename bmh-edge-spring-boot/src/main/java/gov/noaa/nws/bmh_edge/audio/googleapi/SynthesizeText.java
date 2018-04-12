@@ -36,13 +36,15 @@ import java.io.OutputStream;
  * https://github.com/GoogleCloudPlatform/java-docs-samples/blob/master/texttospeech/cloud-client/
  */
 public class SynthesizeText {
+	static final String OUTPUT_FILENAME = "/tmp/output.mp3";
+	
   // [START tts_synthesize_text]
   /**
    * Demonstrates using the Text to Speech client to synthesize text or ssml.
    * @param text the raw text to be synthesized. (e.g., "Hello there!")
    * @throws Exception on TextToSpeechClient Errors.
    */
-  public static ByteString synthesizeText(String text)
+  public static String synthesizeText(String text)
       throws Exception {
 	  
 	 TextToSpeechSettings.defaultCredentialsProviderBuilder().build();
@@ -71,8 +73,15 @@ public class SynthesizeText {
 
       // Get the audio contents from the response
       ByteString audioContents = response.getAudioContent();
+
       
-      return audioContents;
+      // Write the response to the output file.
+      try (OutputStream out = new FileOutputStream(OUTPUT_FILENAME)) {
+        out.write(audioContents.toByteArray());
+        System.out.println("Audio content written to file \"output.mp3\"");
+      }
+      
+      return OUTPUT_FILENAME;
     }
   }
   // [END tts_synthesize_text]
