@@ -12,6 +12,11 @@ spring:
   jackson:
     serialization:
       INDENT_OUTPUT: true
+      
+google:
+  speech:
+    apikey: AIzaSyAa0z38Aj6sV_PZtEJLok0_X1zFWEGSp-A
+    
 
 # to automatic shutdown the JVM after a period of time
 #camel.springboot.duration-max-seconds=60

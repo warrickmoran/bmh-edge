@@ -28,12 +28,21 @@
 	</bean>
 
 	<bean id="objectUtil" class="gov.noaa.nws.bmh_edge.utility.ObjectUtils" />
-	
+
 	<bean id="msgGroupUtil" class="gov.noaa.nws.bmh_edge.utility.BroadcastMsgGroupUtility" />
 
 	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility" />
+	
+	<bean id="googleApi" class="gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility">
+		<property name="apiKey" value="{{google.speech.apikey}}" />
+	</bean>
 
 	<camelContext id="BmhEdge" xmlns="http://camel.apache.org/schema/spring">
+		<dataFormats>
+			<!-- here we define a Json data format with the id jack. -->
+			<json id="googleAPIJson" library="Jackson"/>
+		</dataFormats>
+		
 		<rest>
 			<get uri="/hello">
 				<to uri="direct:hello" />
@@ -48,14 +57,22 @@
 				<to uri="mock:update" />
 			</post>
 		</rest>
-		
+
 		<route id="bmh-ingest">
 			<from uri="amqp:queue:{{bmh.queue}}" />
 			<bean ref="serializationUtil" method="deserialize" />
 			<bean ref="msgGroupUtil" method="extract" />
 			<to uri="mock:result" />
 		</route>
-		
+
+		<route id="bmh-audio">
+			<from uri="direct:audio" />
+			<bean ref="googleApi" method="createTextToSpeechBean" />
+			<to uri="log:gov.noaa.nws.bmh_edge.utility?level=INFO"/>
+			<to uri="mock:audiorequest" />
+			<to uri="mock:audioresponse" />
+		</route>
+
 		<route>
 			<from uri="direct:hello" />
 			<transform>
@@ -71,12 +88,12 @@
 		<route>
 			<from uri="direct:status" />
 			<setHeader headerName="CamelHttpMethod">
-      			<constant>GET</constant>
-    		</setHeader>
-    		<to uri="http4://localhost:8081/info?bridgeEndpoint=true"/>
-    		<transform>
-    			<simple>${body}</simple>
-    		</transform>
+				<constant>GET</constant>
+			</setHeader>
+			<to uri="http4://localhost:8081/info?bridgeEndpoint=true" />
+			<transform>
+				<simple>${body}</simple>
+			</transform>
 		</route>
 	</camelContext>
 
