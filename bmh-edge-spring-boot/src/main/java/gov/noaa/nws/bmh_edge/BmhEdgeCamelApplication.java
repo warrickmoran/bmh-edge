@@ -17,16 +17,12 @@
 package gov.noaa.nws.bmh_edge;
 
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
-
-import gov.noaa.nws.bmh_edge.h2.entity.BroadcastRepository;
 
 //CHECKSTYLE:OFF
 /**
@@ -39,10 +35,6 @@ public class BmhEdgeCamelApplication {
 	
 	@Value("${camel.springboot.path}")
 	String contextPath;
-	
-	// auto wire BroadcastMessage into repository with queries 
-	@Autowired
-	BroadcastRepository repository;
 	
 	// prevent thrift NumberFormat exception
 	static {

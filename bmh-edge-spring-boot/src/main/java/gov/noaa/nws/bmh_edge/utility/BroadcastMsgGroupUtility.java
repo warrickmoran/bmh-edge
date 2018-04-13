@@ -9,7 +9,7 @@ import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
 public class BroadcastMsgGroupUtility {
 	private static final Logger logger = LoggerFactory.getLogger(BroadcastMsgGroupUtility.class);
 
-	public void extract(BroadcastMsgGroup msgGroup) {
+	public String extract(BroadcastMsgGroup msgGroup) {
 		if (msgGroup != null) {
 			if (msgGroup.getMessages() != null) {
 				for (BroadcastMsg broadcastMsg : msgGroup.getMessages()) {
@@ -18,6 +18,7 @@ public class BroadcastMsgGroupUtility {
 								&& (broadcastMsg.getInputMessage().getContent() != null)) {
 							logger.info(String.format("Message Group and Content: %s : %s\n", broadcastMsg.getAfosid(),
 									broadcastMsg.getInputMessage().getContent()));
+							return broadcastMsg.getInputMessage().getContent();
 						} else
 							logger.error(String.format("GetAfosID or GetContent == NULL"));
 					} else {
@@ -28,5 +29,7 @@ public class BroadcastMsgGroupUtility {
 				logger.error(String.format("Null Messages Object for %d", msgGroup.getTraceId()));
 			}
 		}
+		
+		return "";
 	}
 }

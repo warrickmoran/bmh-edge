@@ -12,7 +12,11 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class MP3Player {
+	private static final Logger logger = LoggerFactory.getLogger(MP3Player.class);
 	public void play(String filename) throws Exception {
 		try {
 			File file = new File(filename);

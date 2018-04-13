@@ -1,31 +1,30 @@
 package gov.noaa.nws.bmh_edge.utility;
 
-import java.io.FileInputStream;
 
-import com.google.api.gax.core.CredentialsProvider;
-import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.protobuf.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 
 public class GoogleSpeechUtility {
-	static private String apiKey;
+	private static final Logger logger = LoggerFactory.getLogger(GoogleSpeechUtility.class);
+	private SynthesizeText synthesizeText;
 
-	static public String createTextToSpeechBean(String content) throws Exception {
-		String ret = SynthesizeText.synthesizeText(content.toString());
+	public SynthesizeText getSynthesizeText() {
+		return synthesizeText;
+	}
+
+	public void setSynthesizeText(SynthesizeText synthesizeText) {
+		this.synthesizeText = synthesizeText;
+	}
+
+	public String createTextToSpeechBean(String content) throws Exception {
+		String ret = getSynthesizeText().synthesizeText(content.toString());
 		return ret;
 	}
 
-	static public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
+	public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
 		return createTextToSpeechBean(message.getInputMessage().getContent());
-	}
-
-	public static String getApiKey() {
-		return GoogleSpeechUtility.apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		GoogleSpeechUtility.apiKey = apiKey;
 	}
 }
