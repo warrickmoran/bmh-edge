@@ -6,15 +6,19 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.apache.camel.test.spring.EnableRouteCoverage;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
+import com.raytheon.uf.common.bmh.datamodel.msg.InputMessage;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
 import gov.noaa.nws.bmh_edge.BmhEdgeCamelApplication;
@@ -28,6 +32,8 @@ import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknow
 public class QPidBrokerRouteTest extends CamelTestSupport {
 	private static EmbeddedBroker broker ;
 	private static BroadcastMsgGroup messageGroup;	
+	private static BroadcastMsg message;
+	
 	@Autowired
     private CamelContext camelContext;
  
@@ -37,6 +43,15 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 			
 			messageGroup = new BroadcastMsgGroup();
 			messageGroup.setIds(Stream.of(new Long(1000),new Long(1001)).collect(Collectors.toList()));
+			message = new BroadcastMsg();
+			InputMessage content = new InputMessage();
+			content.setAfosid("TEST");
+			
+			content.setContent(GoogleTextToSpeechTest.GOOGLE_API_CONTENT);
+			message.setInputMessage(content);
+		
+			
+			messageGroup.setMessages(Arrays.asList(message));
 			
 			// to remove thrift warning
 			System.setProperty("thrift.stream.maxsize", "200");
@@ -44,6 +59,11 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 			e.printStackTrace();
 		}
 	}
+	
+	@AfterClass
+    public static void shutdown() {
+        broker.shutdown();
+    }
 	
 	// Must have to utilized beans created through dependency injection
 	// Used with ProducerTemplates.   
@@ -53,7 +73,7 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
     }
 
 	@Test
-	public void testRoute() throws Exception {  
+	public void camelArraySplitTest() throws Exception {  
 		
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMinimumMessageCount(1);
@@ -65,30 +85,8 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}
-		
-		// assert expectations
-		assertMockEndpointsSatisfied();
-	}
 	
-	@Test
-	public void testIngestBroadcastMsgGroup() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMinimumMessageCount(1);	
-
-		try {
-			byte[] serialize = SerializationUtil.transformToThrift(messageGroup);
-		
-			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", serialize, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
-		} catch (CamelExecutionException x) {
-			x.printStackTrace();
-		}
-		
 		// assert expectations
 		assertMockEndpointsSatisfied();
-		
-		BroadcastMsgGroup result = mock.getExchanges().get(0).getIn().getBody(BroadcastMsgGroup.class);
-		assertEquals(messageGroup.getIds(), result.getIds());	
-
 	}
-
 }

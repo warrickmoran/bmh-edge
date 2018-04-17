@@ -55,7 +55,8 @@ public class BroadcastMsgGroup implements ITraceable, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1041732433395959758L;
-
+	
+	@DynamicSerializeElement
 	private List<BroadcastMsg> messages;
 
     @DynamicSerializeElement

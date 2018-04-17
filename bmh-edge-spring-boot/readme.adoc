@@ -6,6 +6,8 @@ The following environment variable is required for Google API authentication:
 
 GOOGLE_APPLICATION_CREDENTIALS=<credentials>.json 
 
+# Spring Boot Debugging
+https://docs.spring.io/spring-boot/docs/current/maven-plugin/examples/run-debug.html
 
 
 

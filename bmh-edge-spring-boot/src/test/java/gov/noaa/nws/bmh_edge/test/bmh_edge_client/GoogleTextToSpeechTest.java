@@ -6,6 +6,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.apache.camel.test.spring.EnableRouteCoverage;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 	@Autowired
 	private CamelContext camelContext;
 
-	static final private String GOOGLE_API_CONTENT = "BMH EDGE Test";
+	static final protected String GOOGLE_API_CONTENT = "BMH EDGE Test";
 	
 	static {
 		try {
@@ -47,9 +48,11 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 			messageGroup.setIds(Stream.of(new Long(1000),new Long(1001)).collect(Collectors.toList()));
 			message = new BroadcastMsg();
 			InputMessage content = new InputMessage();
+			content.setAfosid("TEST");
 			
 			content.setContent(GOOGLE_API_CONTENT);
 			message.setInputMessage(content);
+		
 			
 			messageGroup.setMessages(Arrays.asList(message));
 			
@@ -60,6 +63,11 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 			e.printStackTrace();
 		}
 	}
+	
+	@AfterClass
+    public static void shutdown() {
+        broker.shutdown();
+    }
 
 	// Must have to utilized beans created through dependency injection
 	// Used with ProducerTemplates.
@@ -74,7 +82,7 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 		mock.expectedMinimumMessageCount(1);
 
 		try {
-			template.sendBody("direct:audio", GOOGLE_API_CONTENT);
+			template.sendBody("seda:audio", GOOGLE_API_CONTENT);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}
@@ -89,7 +97,7 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 		mock.expectedMinimumMessageCount(1);
 
 		try {
-			template.sendBody("direct:audio", message);
+			template.sendBody("seda:audio", message);
 			//ByteString resultAudio= mock.getExchanges().get(0).getIn().getBody(ByteString.class);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();

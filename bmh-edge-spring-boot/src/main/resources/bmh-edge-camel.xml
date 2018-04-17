@@ -16,40 +16,50 @@
          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<!-- JMS QPid Proton Configuration -->
-	<bean id="jmsConnectionFactory" class="org.apache.qpid.jms.JmsConnectionFactory">
-		<property name="remoteURI" value="amqp://${bmh.qpid_host}:5672" />
+	<bean id="jmsConnectionFactory"
+		class="org.apache.qpid.jms.JmsConnectionFactory">
+		<property name="remoteURI"
+			value="amqp://${bmh.qpid_host}:5672" />
 		<property name="username" value="guest" />
 		<property name="password" value="guest" />
 	</bean>
 
 	<!-- Camel AMQP Component configuration -->
-	<bean id="amqp" class="org.apache.camel.component.amqp.AMQPComponent">
+	<bean id="amqp"
+		class="org.apache.camel.component.amqp.AMQPComponent">
 		<property name="connectionFactory" ref="jmsConnectionFactory" />
 	</bean>
 
-	<bean id="objectUtil" class="gov.noaa.nws.bmh_edge.utility.ObjectUtils" />
+	<bean id="objectUtil"
+		class="gov.noaa.nws.bmh_edge.utility.ObjectUtils" />
 
-	<bean id="msgGroupUtil" class="gov.noaa.nws.bmh_edge.utility.BroadcastMsgGroupUtility" />
+	<bean id="msgGroupUtil"
+		class="gov.noaa.nws.bmh_edge.utility.BroadcastMsgGroupUtility" />
 
-	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility" />
-	
-	<bean id="synthesizeText" class="gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText">
-		<property name="googleApplicationCredentials" value="${google.speech.apikey}" />
+	<bean id="serializationUtil"
+		class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility" />
+
+	<bean id="synthesizeText"
+		class="gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText">
 		<property name="outputDir" value="${google.speech.outputDir}" />
 	</bean>
-	
-	<bean id="googleApi" class="gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility">
+
+	<bean id="googleApi"
+		class="gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility">
 		<property name="synthesizeText" ref="synthesizeText" />
 	</bean>
-	
-	<bean id="mp3Player" class="gov.noaa.nws.bmh_edge.audio.mp3.MP3Player" />
 
-	<camelContext id="BmhEdge" xmlns="http://camel.apache.org/schema/spring">
+	<bean id="mp3Player"
+		class="gov.noaa.nws.bmh_edge.audio.mp3.MP3Player" />
+
+	<camelContext id="BmhEdge"
+		xmlns="http://camel.apache.org/schema/spring"
+		trace="true">
 		<dataFormats>
 			<!-- here we define a Json data format with the id jack. -->
-			<json id="googleAPIJson" library="Jackson"/>
+			<json id="googleAPIJson" library="Jackson" />
 		</dataFormats>
-		
+
 		<rest>
 			<get uri="/hello">
 				<to uri="direct:hello" />
@@ -57,7 +67,8 @@
 			<get uri="/bye" consumes="application/json">
 				<to uri="direct:bye" />
 			</get>
-			<get uri="status" consumes="application/vnd.spring-boot.actuator.v1+json">
+			<get uri="status"
+				consumes="application/vnd.spring-boot.actuator.v1+json">
 				<to uri="direct:status" />
 			</get>
 			<post uri="/bye">
@@ -65,31 +76,36 @@
 			</post>
 		</rest>
 
-		<route id="bmh-ingest">
+		<route id="bmh-ingest" trace="true">
 			<from uri="amqp:queue:{{bmh.queue}}" />
 			<bean ref="serializationUtil" method="deserialize" />
+
 			<bean ref="msgGroupUtil" method="extract" />
-			<to uri="mock:result" />
-			<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
+			<split>
+				<simple>${body}</simple>
+				<to uri="mock:result" />
+				<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
+			</split>
 		</route>
 
 		<route id="bmh-audio">
-			<from uri="seda:audio?size=100"/> 
+			<from uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
 			<bean ref="googleApi" method="createTextToSpeechBean" />
-			<to uri="log:gov.noaa.nws.bmh_edge.utility?level=INFO"/>
+			<to uri="log:gov.noaa.nws.bmh_edge.utility?level=INFO" />
 			<to uri="mock:audioresponse" />
 			<bean ref="mp3Player" method="play" />
 		</route>
-		
+
 		<route id="bmh-scheduler">
-			<from uri=""
+			<from uri="direct:scheduler" />
+			<to uri="mock:scheduler" />
 		</route>
-		
+
 		<route id="bmh-playlist">
 			<from uri="direct:playlist" />
 			<loop doWhile="true">
 				<simple>${body.update}</simple>
-    			<to uri="mock:playlist"/>
+				<to uri="mock:playlist" />
 			</loop>
 		</route>
 
