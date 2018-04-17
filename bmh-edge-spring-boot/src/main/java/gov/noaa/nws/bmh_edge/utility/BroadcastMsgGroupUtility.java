@@ -23,5 +23,9 @@ public class BroadcastMsgGroupUtility {
 
 		return null;
 	}
+	
+	public String extract (String xml) {
+		return xml;
+	}
 
 }
