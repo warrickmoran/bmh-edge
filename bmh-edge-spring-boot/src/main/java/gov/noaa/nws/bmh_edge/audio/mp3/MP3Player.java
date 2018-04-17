@@ -13,14 +13,12 @@ import javax.sound.sampled.SourceDataLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
-
 //
 // http://www.javazoom.net/mp3spi/documents.html
 //
 public class MP3Player {
 	private static final Logger logger = LoggerFactory.getLogger(MP3Player.class);
-	
+
 	public void play(String filename) throws Exception {
 		try {
 			File file = new File(filename);

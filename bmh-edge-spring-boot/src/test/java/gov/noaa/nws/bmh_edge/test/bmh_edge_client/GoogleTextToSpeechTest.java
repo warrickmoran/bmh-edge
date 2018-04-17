@@ -8,6 +8,8 @@ import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.apache.camel.test.spring.EnableRouteCoverage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,11 +20,8 @@ import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 import gov.noaa.nws.bmh_edge.BmhEdgeCamelApplication;
 import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
 
-import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,6 +29,8 @@ import java.util.stream.Stream;
 @SpringBootTest(classes = BmhEdgeCamelApplication.class)
 @EnableRouteCoverage
 public class GoogleTextToSpeechTest extends CamelTestSupport {
+	private static final Logger logger = LoggerFactory.getLogger(GoogleTextToSpeechTest.class);
+	
 	private static EmbeddedBroker broker ;
 	private static BroadcastMsgGroup messageGroup;	
 	private static BroadcastMsg message;
@@ -74,7 +75,6 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 
 		try {
 			template.sendBody("direct:audio", GOOGLE_API_CONTENT);
-			//ByteString resultAudio= mock.getExchanges().get(0).getIn().getBody(ByteString.class);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}

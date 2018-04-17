@@ -7,24 +7,24 @@ import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 
 public class GoogleSpeechUtility {
 	private static final Logger logger = LoggerFactory.getLogger(GoogleSpeechUtility.class);
-	static private String apiKey;
+	private SynthesizeText synthesizeText;
+	
+	public SynthesizeText getSynthesizeText() {
+		return synthesizeText;
+	}
 
-	static public String createTextToSpeechBean(String content) throws Exception {
+	public void setSynthesizeText(SynthesizeText synthesizeText) {
+		this.synthesizeText = synthesizeText;
+	}
+
+	public String createTextToSpeechBean(String content) throws Exception {
 		logger.debug(String.format("Synthesize String: %s", content));
-		String ret = SynthesizeText.synthesizeText(content.toString());
+		String ret = getSynthesizeText().synthesizeText(content.toString());
 		return ret;
 	}
 
-	static public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
+	public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
 		logger.debug(String.format("Synthesize BroadcastMsg: %s", message.getInputMessage().getContent()));
 		return createTextToSpeechBean(message.getInputMessage().getContent());
-	}
-
-	public static String getApiKey() {
-		return GoogleSpeechUtility.apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		GoogleSpeechUtility.apiKey = apiKey;
 	}
 }

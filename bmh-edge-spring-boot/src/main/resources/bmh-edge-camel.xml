@@ -33,8 +33,13 @@
 
 	<bean id="serializationUtil" class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility" />
 	
+	<bean id="synthesizeText" class="gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText">
+		<property name="googleApplicationCredentials" value="${google.speech.apikey}" />
+		<property name="outputDir" value="${google.speech.outputDir}" />
+	</bean>
+	
 	<bean id="googleApi" class="gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility">
-		<property name="apiKey" value="{{google.speech.apikey}}" />
+		<property name="synthesizeText" ref="synthesizeText" />
 	</bean>
 	
 	<bean id="mp3Player" class="gov.noaa.nws.bmh_edge.audio.mp3.MP3Player" />
@@ -65,10 +70,11 @@
 			<bean ref="serializationUtil" method="deserialize" />
 			<bean ref="msgGroupUtil" method="extract" />
 			<to uri="mock:result" />
+			<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
 		</route>
 
 		<route id="bmh-audio">
-			<from uri="direct:audio" />
+			<from uri="seda:audio?size=100"/> 
 			<bean ref="googleApi" method="createTextToSpeechBean" />
 			<to uri="log:gov.noaa.nws.bmh_edge.utility?level=INFO"/>
 			<to uri="mock:audioresponse" />
