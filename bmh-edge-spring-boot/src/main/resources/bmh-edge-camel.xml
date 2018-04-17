@@ -74,6 +74,18 @@
 			<to uri="mock:audioresponse" />
 			<bean ref="mp3Player" method="play" />
 		</route>
+		
+		<route id="bmh-scheduler">
+			<from uri=""
+		</route>
+		
+		<route id="bmh-playlist">
+			<from uri="direct:playlist" />
+			<loop doWhile="true">
+				<simple>${body.update}</simple>
+    			<to uri="mock:playlist"/>
+			</loop>
+		</route>
 
 		<route>
 			<from uri="direct:hello" />

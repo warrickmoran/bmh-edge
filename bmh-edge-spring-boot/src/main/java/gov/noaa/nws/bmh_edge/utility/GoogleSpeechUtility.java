@@ -1,23 +1,22 @@
 package gov.noaa.nws.bmh_edge.utility;
 
-import java.io.FileInputStream;
-
-import com.google.api.gax.core.CredentialsProvider;
-import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.protobuf.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 
 public class GoogleSpeechUtility {
+	private static final Logger logger = LoggerFactory.getLogger(GoogleSpeechUtility.class);
 	static private String apiKey;
 
 	static public String createTextToSpeechBean(String content) throws Exception {
+		logger.debug(String.format("Synthesize String: %s", content));
 		String ret = SynthesizeText.synthesizeText(content.toString());
 		return ret;
 	}
 
 	static public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
+		logger.debug(String.format("Synthesize BroadcastMsg: %s", message.getInputMessage().getContent()));
 		return createTextToSpeechBean(message.getInputMessage().getContent());
 	}
 

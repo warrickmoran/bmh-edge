@@ -27,8 +27,13 @@ import com.google.cloud.texttospeech.v1beta1.TextToSpeechSettings;
 import com.google.cloud.texttospeech.v1beta1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
 
+import gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility;
+
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,6 +41,7 @@ import java.io.OutputStream;
  * https://github.com/GoogleCloudPlatform/java-docs-samples/blob/master/texttospeech/cloud-client/
  */
 public class SynthesizeText {
+	private static final Logger logger = LoggerFactory.getLogger(SynthesizeText.class);
 	static final String OUTPUT_FILENAME = "/tmp/output.mp3";
 	
   // [START tts_synthesize_text]

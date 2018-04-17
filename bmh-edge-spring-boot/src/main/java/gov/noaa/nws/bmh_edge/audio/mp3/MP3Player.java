@@ -1,9 +1,7 @@
 package gov.noaa.nws.bmh_edge.audio.mp3;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -12,7 +10,17 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
+
+//
+// http://www.javazoom.net/mp3spi/documents.html
+//
 public class MP3Player {
+	private static final Logger logger = LoggerFactory.getLogger(MP3Player.class);
+	
 	public void play(String filename) throws Exception {
 		try {
 			File file = new File(filename);
