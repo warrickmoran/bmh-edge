@@ -10,6 +10,9 @@ GOOGLE_APPLICATION_CREDENTIALS=<credentials>.json
 https://docs.spring.io/spring-boot/docs/current/maven-plugin/examples/run-debug.html
 
 
+# Spring Web
+https://spring.io/guides/gs/serving-web-content/
+
 
 This example shows how to work with a simple Apache Camel application using Spring Boot.
 
