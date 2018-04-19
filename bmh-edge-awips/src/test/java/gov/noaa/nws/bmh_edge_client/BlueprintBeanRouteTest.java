@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
 import gov.noaa.nws.qpid_server.EmbeddedBroker;
@@ -42,6 +44,8 @@ public class BlueprintBeanRouteTest extends CamelBlueprintTestSupport {
 	public void testRoute() throws Exception {  
 		
 		MockEndpoint mock = getMockEndpoint("mock:result");
+		DynamicSerializationManager dsm = DynamicSerializationManager
+                .getManager(SerializationType.Thrift);
 		mock.expectedMinimumMessageCount(1);
 
 		try {

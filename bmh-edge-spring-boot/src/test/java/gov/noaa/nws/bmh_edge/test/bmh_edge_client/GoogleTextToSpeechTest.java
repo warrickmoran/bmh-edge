@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
 import com.raytheon.uf.common.bmh.datamodel.msg.InputMessage;
+import com.raytheon.uf.common.bmh.datamodel.transmitter.Transmitter;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 
 import gov.noaa.nws.bmh_edge.BmhEdgeCamelApplication;
@@ -23,6 +24,8 @@ import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
 
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,11 +54,14 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 			content.setAfosid("TEST");
 			
 			content.setContent(GOOGLE_API_CONTENT);
+			
+			Transmitter tst = new Transmitter();
+			tst.setCallSign("TST");
+			
+			content.setSelectedTransmitters(Stream.of(tst).collect(Collectors.toCollection(HashSet::new)));
 			message.setInputMessage(content);
 		
-			
-			messageGroup.setMessages(Arrays.asList(message));
-			
+			messageGroup.setMessages(Arrays.asList(message));	
 			
 			// to remove thrift warning
 			System.setProperty("thrift.stream.maxsize", "200");
@@ -76,7 +82,6 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 		return camelContext;
 	}
 	
-	@Test
 	public void testSynthesizeTextCreation() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:audioresponse");
 		mock.expectedMinimumMessageCount(1);
@@ -106,5 +111,4 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 		// assert expectations
 		assertMockEndpointsSatisfied();
 	}
-
 }

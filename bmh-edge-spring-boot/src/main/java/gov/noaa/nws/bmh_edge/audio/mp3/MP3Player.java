@@ -13,27 +13,32 @@ import javax.sound.sampled.SourceDataLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
+
 //
 // http://www.javazoom.net/mp3spi/documents.html
 //
 public class MP3Player {
 	private static final Logger logger = LoggerFactory.getLogger(MP3Player.class);
 
+	public void play(BroadcastMsg message) throws Exception {
+		play(message.getInputMessage().getOriginalFile());
+	}
+
 	public void play(String filename) throws Exception {
-		try {
-			File file = new File(filename);
-			AudioInputStream in = AudioSystem.getAudioInputStream(file);
-			AudioInputStream din = null;
-			AudioFormat baseFormat = in.getFormat();
-			AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
-					baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-			din = AudioSystem.getAudioInputStream(decodedFormat, in);
-			// Play now.
-			rawplay(decodedFormat, din);
-			in.close();
-		} catch (Exception e) {
-			// Handle exception.
-		}
+		play(new File(filename));
+	}
+
+	private void play(File file) throws Exception {
+		AudioInputStream in = AudioSystem.getAudioInputStream(file);
+		AudioInputStream din = null;
+		AudioFormat baseFormat = in.getFormat();
+		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
+				baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
+		din = AudioSystem.getAudioInputStream(decodedFormat, in);
+		// Play now.
+		rawplay(decodedFormat, din);
+		in.close();
 	}
 
 	private void rawplay(AudioFormat targetFormat, AudioInputStream din) throws IOException, LineUnavailableException {

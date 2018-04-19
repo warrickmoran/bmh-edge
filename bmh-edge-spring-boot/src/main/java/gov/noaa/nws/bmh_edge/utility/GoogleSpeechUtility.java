@@ -1,5 +1,7 @@
 package gov.noaa.nws.bmh_edge.utility;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
@@ -23,18 +25,17 @@ public class GoogleSpeechUtility {
 		return ret;
 	}
 
-	public String createTextToSpeechBean(BroadcastMsg message) throws Exception {
+	public void createTextToSpeechBean(BroadcastMsg message) throws Exception {
 		if (message != null) {
 			if ((message.getAfosid() != null) && (message.getInputMessage().getContent() != null)) {
 				logger.info(String.format("Message Group and Content: %s : %s\n", message.getAfosid(),
 						message.getInputMessage().getContent()));
-				return createTextToSpeechBean(message.getInputMessage().getContent());
+				message.getInputMessage().setOriginalFile(new File(createTextToSpeechBean(message.getInputMessage().getContent())));
 			} else
 				logger.error(String.format("GetAfosID or GetContent == NULL"));
 		} else {
 			logger.error(String.format("BroadcastMsg == NULL)"));
 			throw new Exception("Empty BMH Message");
 		}
-		return null;
 	}
 }
