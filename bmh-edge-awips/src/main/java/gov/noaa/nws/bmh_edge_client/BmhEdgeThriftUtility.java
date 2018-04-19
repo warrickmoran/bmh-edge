@@ -4,6 +4,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
 public class BmhEdgeThriftUtility {
+	
 	public static byte[] serialize(Object obj) throws SerializationException {
 		return SerializationUtil.transformToThrift(obj);
 	}

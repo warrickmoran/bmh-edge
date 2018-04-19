@@ -38,7 +38,8 @@ public class BmhEdgeCamelApplication {
 	
 	// prevent thrift NumberFormat exception
 	static {
-		System.setProperty("thrift.stream.maxsize", "200");
+		// increased to account for new BroadcastMsgGroup size
+		System.setProperty("thrift.stream.maxsize", Integer.toString(1000));
 	}
 
     /**

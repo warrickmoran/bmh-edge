@@ -33,6 +33,7 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 	private static EmbeddedBroker broker ;
 	private static BroadcastMsgGroup messageGroup;	
 	private static BroadcastMsg message;
+	private static String playListXML; 
 	
 	@Autowired
     private CamelContext camelContext;
@@ -55,6 +56,8 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 			
 			// to remove thrift warning
 			System.setProperty("thrift.stream.maxsize", "200");
+			
+			playListXML = String.format("<bmhPlaylist><priority>1</priority></bmhPlaylist>");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -75,7 +78,7 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 	@Test
 	public void camelArraySplitTest() throws Exception {  
 		
-		MockEndpoint mock = getMockEndpoint("mock:result");
+		MockEndpoint mock = getMockEndpoint("mock:ingestbroadcastmsg");
 		mock.expectedMinimumMessageCount(1);
 
 		try {
@@ -89,4 +92,22 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 		// assert expectations
 		assertMockEndpointsSatisfied();
 	}
+	
+	@Test
+	public void camelJaxbTest() throws Exception {  
+		
+		MockEndpoint mock = getMockEndpoint("mock:ingestjaxb");
+		mock.expectedMinimumMessageCount(1);
+
+		try {
+			byte[] serialize = SerializationUtil.transformToThrift(playListXML);
+		
+			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", serialize, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
+		} catch (CamelExecutionException x) {
+			x.printStackTrace();
+		}
+	
+		// assert expectations
+		assertMockEndpointsSatisfied();
+	}	
 }

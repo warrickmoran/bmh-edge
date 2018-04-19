@@ -188,6 +188,25 @@
 					</archive>
 				</configuration>
 			</plugin>
+					
+			<!-- Required to prevent JAXB error during unmarshall -->
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<tasks>
+						<copy file="src/main/java/com/raytheon/uf/common/bmh/datamodel/playlist/jaxb.index" 
+						tofile="target/classes/com/raytheon/uf/common/bmh/datamodel/playlist/jaxb.index" />
+					</tasks>
+				</configuration>
+			</plugin>
 
 			<!-- to run the example using mvn camel:run -->
 			<plugin>

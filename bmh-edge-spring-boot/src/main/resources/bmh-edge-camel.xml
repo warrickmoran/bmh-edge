@@ -37,7 +37,7 @@
 		class="gov.noaa.nws.bmh_edge.utility.BroadcastMsgGroupUtility" />
 
 	<bean id="serializationUtil"
-		class="gov.noaa.nws.bmh_edge_client.BmhEdgeThriftUtility" />
+		class="com.raytheon.uf.common.serialization.SerializationUtil" />
 
 	<bean id="synthesizeText"
 		class="gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText">
@@ -77,27 +77,30 @@
 
 		<route id="bmh-ingest" trace="true">
 			<from uri="amqp:queue:{{bmh.queue}}" />
-			<bean ref="serializationUtil" method="deserialize" />
-
-			<bean ref="msgGroupUtil" method="extract" />
+			<bean ref="serializationUtil" method="transformFromThrift" />
 
 			<choice>
 				<when>
-					<simple>"${body} is
-						'com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg'"</simple>
+					<simple>${body} is
+						'com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup'</simple>
 					<split>
-						<simple>${body}</simple>
-						<to uri="mock:result" />
+						<simple>${body.messages}</simple>
+						<to uri="mock:ingestbroadcastmsg" />
 						<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
 					</split>
 				</when>
 				<when>
-					<simple>"${body} is
-						'java.lang.String'"</simple>
+					<simple>${body} is
+						'java.lang.String'</simple>
 					<log message="Received String: ${body}"/>
+					<!-- http://camel.465427.n5.nabble.com/Camel-JAXB-jaxb-index-not-found-td5795819.html -->
+					<unmarshal>
+      					<jaxb prettyPrint="true" contextPath="com.raytheon.uf.common.bmh.datamodel.playlist"/>
+    				</unmarshal>
+    				<to uri="mock:ingestjaxb"/>
 				</when>
 				<otherwise>
-					<log message="Invalid Ingest Object" loggingLevel="ERROR" logName="gov.noaa.nws"/>
+					<log message="Invalid Ingest Object ${body}" loggingLevel="ERROR" logName="gov.noaa.nws"/>
 				</otherwise>
 			</choice>
 		</route>
