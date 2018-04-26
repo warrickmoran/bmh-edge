@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
 import com.raytheon.uf.common.bmh.datamodel.msg.InputMessage;
+import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 import com.raytheon.uf.common.bmh.datamodel.transmitter.Transmitter;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 
@@ -36,8 +37,7 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 	private static final Logger logger = LoggerFactory.getLogger(GoogleTextToSpeechTest.class);
 	
 	private static EmbeddedBroker broker ;
-	private static BroadcastMsgGroup messageGroup;	
-	private static BroadcastMsg message;
+	private static DacPlaylistMessageMetadata message;
 	@Autowired
 	private CamelContext camelContext;
 
@@ -47,21 +47,9 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 		try {
 			broker = new EmbeddedBroker();
 			
-			messageGroup = new BroadcastMsgGroup();
-			messageGroup.setIds(Stream.of(new Long(1000),new Long(1001)).collect(Collectors.toList()));
-			message = new BroadcastMsg();
-			InputMessage content = new InputMessage();
-			content.setAfosid("TEST");
-			
-			content.setContent(GOOGLE_API_CONTENT);
-			
-			Transmitter tst = new Transmitter();
-			tst.setCallSign("TST");
-			
-			content.setSelectedTransmitters(Stream.of(tst).collect(Collectors.toCollection(HashSet::new)));
-			message.setInputMessage(content);
-		
-			messageGroup.setMessages(Arrays.asList(message));	
+			message = new DacPlaylistMessageMetadata();
+			message.setMessageText(GoogleTextToSpeechTest.GOOGLE_API_CONTENT);
+			message.setSoundFiles(Arrays.asList("./mp3/test.out"));
 			
 			// to remove thrift warning
 			System.setProperty("thrift.stream.maxsize", "200");
@@ -81,20 +69,7 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 	protected CamelContext createCamelContext() throws Exception {
 		return camelContext;
 	}
-	
-	public void testSynthesizeTextCreation() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:audioresponse");
-		mock.expectedMinimumMessageCount(1);
 
-		try {
-			template.sendBody("seda:audio", GOOGLE_API_CONTENT);
-		} catch (CamelExecutionException x) {
-			x.printStackTrace();
-		}
-
-		// assert expectations
-		assertMockEndpointsSatisfied();
-	}
 	
 	@Test
 	public void testSynthesizeBroadcastMsgCreation() throws Exception {
@@ -103,6 +78,7 @@ public class GoogleTextToSpeechTest extends CamelTestSupport {
 
 		try {
 			template.sendBody("seda:audio", message);
+			Thread.sleep(10000);
 			//ByteString resultAudio= mock.getExchanges().get(0).getIn().getBody(ByteString.class);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();

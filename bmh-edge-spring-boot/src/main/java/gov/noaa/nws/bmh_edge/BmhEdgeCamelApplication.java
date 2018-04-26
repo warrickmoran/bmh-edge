@@ -16,22 +16,38 @@
  */
 package gov.noaa.nws.bmh_edge;
 
+import java.util.concurrent.Executor;
+
+import javax.annotation.Resource;
+
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import gov.noaa.nws.bmh_edge.services.PlaylistService;
+import gov.noaa.nws.bmh_edge.services.PlaylistService.CustomSpringEvent;
 
 //CHECKSTYLE:OFF
 /**
  * A sample Spring Boot application that starts the Camel routes.
  */
 @SpringBootApplication
+@EnableAsync
 // load the spring xml file from classpath
 @ImportResource("classpath:bmh-edge-camel.xml")
-public class BmhEdgeCamelApplication {
+public class BmhEdgeCamelApplication implements ApplicationListener<PlaylistService.CustomSpringEvent> {
+	private static final Logger logger = LoggerFactory.getLogger(BmhEdgeCamelApplication.class);
+	@Resource
+	private PlaylistService service;
 	
 	@Value("${camel.springboot.path}")
 	String contextPath;
@@ -55,6 +71,27 @@ public class BmhEdgeCamelApplication {
         servlet.setName("CamelServlet");
         return servlet;
     }
+    
+    @Bean
+    public Executor asyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("PlaylistService-");
+        executor.initialize();
+        return executor;
+    }
 
+	@Override
+	public void onApplicationEvent(CustomSpringEvent event) {
+		try {
+			logger.info("Play Event Received");
+			service.play();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
 //CHECKSTYLE:ON

@@ -35,17 +35,21 @@
 
 	<bean id="synthesizeText"
 		class="gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText">
-		<property name="outputDir" value="${google.speech.outputDir}" />
 	</bean>
 
 	<bean id="googleApi"
 		class="gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility">
 		<property name="synthesizeText" ref="synthesizeText" />
+		<property name="audioOut" value="${google.speech.dir}" />
+	</bean>
+
+	<bean id="playlistUtil"
+		class="gov.noaa.nws.bmh_edge.utility.BmhPlaylistUtility">
+		<property name="transmitterID" value="${bmh.transmitter.id}" />
+<!-- 		<property name="service" ref="broadcastService" /> -->
 	</bean>
 	
-	<bean id="playlistUtil" class="gov.noaa.nws.bmh_edge.utility.BmhPlaylistUtility">
-		<property name="transmitterID" value="${bmh.transmitter.id}" />
-	</bean>
+<!-- 	<bean id="broadcastService" class="gov.noaa.nws.bmh_edge.services.PlaylistService" /> -->
 
 	<bean id="mp3Player"
 		class="gov.noaa.nws.bmh_edge.audio.mp3.MP3Player" />
@@ -80,57 +84,61 @@
 			<choice>
 				<when>
 					<simple>${body} is
-						'com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup'</simple>
-					<split>
-						<simple>${body.messages}</simple>
-						<to uri="mock:ingestbroadcastmsg" />
-						<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
-					</split>
+						'java.lang.String' and ${body} contains
+						'bmhPlaylist'
+					</simple>
+					<log message="Received String: ${body}" />
+					<!-- http://camel.465427.n5.nabble.com/Camel-JAXB-jaxb-index-not-found-td5795819.html -->
+					<unmarshal>
+						<jaxb prettyPrint="true"
+							contextPath="com.raytheon.uf.common.bmh.datamodel.playlist" />
+					</unmarshal>
+					<to uri="mock:ingestjaxb" />
+					<to uri="direct:scheduler" />
 				</when>
 				<when>
 					<simple>${body} is
-						'java.lang.String'</simple>
-					<log message="Received String: ${body}"/>
+						'java.lang.String' and ${body} contains
+						'bmhMessageMetadata'
+					</simple>
+					<log message="Received String: ${body}" />
 					<!-- http://camel.465427.n5.nabble.com/Camel-JAXB-jaxb-index-not-found-td5795819.html -->
 					<unmarshal>
-      					<jaxb prettyPrint="true" contextPath="com.raytheon.uf.common.bmh.datamodel.playlist"/>
-    				</unmarshal>
-    				<to uri="mock:ingestjaxb"/>
+						<jaxb prettyPrint="true"
+							contextPath="com.raytheon.uf.common.bmh.datamodel.playlist" />
+					</unmarshal>
+					<to uri="mock:ingestjaxb" />
+					<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
 				</when>
 				<otherwise>
-					<log message="Invalid Ingest Object ${body}" loggingLevel="ERROR" logName="gov.noaa.nws"/>
+					<log message="Invalid Ingest Object ${body}"
+						loggingLevel="ERROR" logName="gov.noaa.nws" />
 				</otherwise>
 			</choice>
 		</route>
 
 		<route id="bmh-audio" trace="true">
 			<from uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
-			<bean ref="playlistUtil" method="transmitterCheck" />
-			<choice>
-				<when>
-					<simple>${header.trans_check}</simple>
-					<bean ref="googleApi" method="createTextToSpeechBean" />
-					<to uri="log:gov.noaa.nws.bmh_edge.utility?level=INFO" />
-					<to uri="mock:audioresponse" />
-					<bean ref="mp3Player" method="play" />
-				</when>
-				<otherwise>
-					<log message="Message not destined for transmitter {{bmh.transmitter.id}}" loggingLevel="ERROR" logName="gov.noaa.nws"/>
-				</otherwise>
-			</choice>
+
+			<bean ref="googleApi" method="createTextToSpeechBean" />
+			<to uri="log:gov.noaa.nws.bmh_edge.utility?level=INFO" />
+			<bean ref="playlistUtil" method="addMessage" />
+			<to uri="mock:audioresponse" />
 		</route>
 
 		<route id="bmh-scheduler">
 			<from uri="direct:scheduler" />
+			<bean ref="playlistUtil" method="updatePlaylist"/>
 			<to uri="mock:scheduler" />
 		</route>
 
 		<route id="bmh-playlist">
 			<from uri="direct:playlist" />
-			<loop doWhile="true">
-				<simple>${body.update}</simple>
-				<to uri="mock:playlist" />
-			</loop>
+			<bean ref="playlistUtil" method="transmitterCheck" />
+			<when>
+				<simple>${header.trans_check}</simple>
+				
+			</when>
 		</route>
 
 		<route>

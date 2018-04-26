@@ -26,6 +26,7 @@ import com.google.cloud.texttospeech.v1beta1.TextToSpeechClient;
 import com.google.cloud.texttospeech.v1beta1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
@@ -53,6 +54,8 @@ public class SynthesizeText {
 
 		if (text.isEmpty()) {
 			throw new Exception("Empty String");
+		} else if (!createOutputDirectory(filename)) {
+			throw new Exception("Unable to Create MP3 Output Directory");
 		}
 
 		// Instantiates a client
@@ -81,6 +84,7 @@ public class SynthesizeText {
 				out.write(audioContents.toByteArray());
 				logger.info(String.format("Audio content written to file %s", filename));
 			} catch (Exception ex) {
+				logger.error(String.format("%s", ex.getMessage()));
 				return Boolean.FALSE;
 			}
 
@@ -136,4 +140,16 @@ public class SynthesizeText {
 	// }
 	// }
 	// [END tts_synthesize_ssml]
+	
+	private Boolean createOutputDirectory(String filename) {
+		File file = new File(filename);
+		File parent = file.getParentFile();
+		Boolean ret = true;
+		
+		if (!file.exists() && !parent.exists()) {
+			ret = parent.mkdirs();
+		} 
+		
+		return ret;
+	}
 }

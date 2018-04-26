@@ -16,7 +16,7 @@ spring:
 google:
   speech:
     apikey: /home/amoran/Git/bmh-edge/bmh-edge-spring-boot/BMH-EDGE-7fbcada789e1.json
-    outputDir: /tmp
+    dir: /tmp
     
 
 # to automatic shutdown the JVM after a period of time
@@ -66,8 +66,8 @@ endpoints:
 logging:
   file: logs/bmh_edge.log
   pattern:
-    console: "%d %-5level %logger : %msg%n"
-    file: "%d %-5level [%thread] %logger : %msg%n"
+    console: "%d [%-20.20thread] %-5level %logger : %msg%n"
+    file: "%d [%-20thread] %-5level %logger : %msg%n"
   level:
     root: INFO
     org.springframework.web: INFO

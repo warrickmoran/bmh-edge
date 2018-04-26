@@ -5,11 +5,14 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
+import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
+
 import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 
 public class GoogleSpeechUtility {
 	private static final Logger logger = LoggerFactory.getLogger(GoogleSpeechUtility.class);
 	private SynthesizeText synthesizeText;
+	private String audioOut;
 
 	public SynthesizeText getSynthesizeText() {
 		return synthesizeText;
@@ -17,25 +20,36 @@ public class GoogleSpeechUtility {
 
 	public void setSynthesizeText(SynthesizeText synthesizeText) {
 		this.synthesizeText = synthesizeText;
+	}	
+
+	/**
+	 * @return the audioOut
+	 */
+	public String getAudioOut() {
+		return audioOut;
 	}
 
-	public String createTextToSpeechBean(String content) throws Exception {
-		logger.debug(String.format("Synthesize String: %s", content));
-		String ret = getSynthesizeText().synthesizeText(content.toString());
-		return ret;
+	/**
+	 * @param audioOut the audioOut to set
+	 */
+	public void setAudioOut(String audioOut) {
+		this.audioOut = audioOut;
 	}
 
-	public void createTextToSpeechBean(BroadcastMsg message) throws Exception {
+	public DacPlaylistMessageMetadata createTextToSpeechBean(DacPlaylistMessageMetadata message) throws Exception {
 		if (message != null) {
-			if ((message.getAfosid() != null) && (message.getInputMessage().getContent() != null)) {
-				logger.info(String.format("Message Group and Content: %s : %s\n", message.getAfosid(),
-						message.getInputMessage().getContent()));
-				message.getInputMessage().setOriginalFile(new File(createTextToSpeechBean(message.getInputMessage().getContent())));
-			} else
-				logger.error(String.format("GetAfosID or GetContent == NULL"));
+			message.getSoundFiles().set(0, String.format("%s/%s.mp3", getAudioOut(), message.getSoundFiles().get(0)));
+			if (getSynthesizeText().synthesizeText(message.getMessageText(), message.getSoundFiles().get(0))) {
+				message.setRecognized(true);
+			} else {
+				message.setRecognized(false);
+				throw new Exception ("Unable to Create BMH MP3");
+			}
+			
 		} else {
 			logger.error(String.format("BroadcastMsg == NULL)"));
 			throw new Exception("Empty BMH Message");
 		}
+		return message;
 	}
 }
