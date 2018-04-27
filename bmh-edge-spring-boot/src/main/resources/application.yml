@@ -30,12 +30,12 @@ google:
 # --------------------------------------------
 bmh:
   qpid:
-    host: localhost
-    #host: bmh2
-    queue: ingest
-    #queue: BMH.EDGE
+    #host: localhost
+    host: bmh2
+    #queue: ingest
+    queue: BMH.EDGE
   transmitter:
-    id: ANY
+    id: HGR
 
 # how often to trigger the timer
 timer:
@@ -75,7 +75,8 @@ logging:
     org.hibernate: INFO
     com.google: INFO
     org.apache.camel: INFO
-    gov.noaa.nws: DEBUG
+    gov.noaa.nws: INFO
+    org.springframework.aop.interceptor.PerformanceMonitorInterceptor: TRACE
 #logging.level.org.springframework = INFO
 #logging.level.org.apache.camel.spring.boot = INFO
 #logging.level.org.apache.camel.impl = DEBUG

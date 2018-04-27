@@ -46,6 +46,8 @@ import gov.noaa.nws.bmh_edge.services.PlaylistService.CustomSpringEvent;
 @ImportResource("classpath:bmh-edge-camel.xml")
 public class BmhEdgeCamelApplication implements ApplicationListener<PlaylistService.CustomSpringEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(BmhEdgeCamelApplication.class);
+	
+	// resource should be a singleton since object is used here and BmhPlaylistUtility
 	@Resource
 	private PlaylistService service;
 	
@@ -87,7 +89,10 @@ public class BmhEdgeCamelApplication implements ApplicationListener<PlaylistServ
 	public void onApplicationEvent(CustomSpringEvent event) {
 		try {
 			logger.info("Play Event Received");
-			service.play();
+			if (!service.getActive().get() && (service.getCurrent() != null)) {
+				logger.info("Activating Broadcast Cycle");
+				service.play();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

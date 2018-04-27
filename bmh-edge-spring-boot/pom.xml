@@ -82,6 +82,12 @@
 			<artifactId>spring-boot-actuator</artifactId>
 		</dependency>
 
+		<!-- Spring Boot Aop -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
 		<!-- Spring Boot Logging -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -178,7 +184,6 @@
 			<artifactId>camel-test-spring</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -190,7 +195,7 @@
 				<configuration>
 					<jvmArguments>
 						-Xdebug
-						-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+						-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
 					</jvmArguments>
 				</configuration>
 				<executions>

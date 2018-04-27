@@ -47,7 +47,7 @@ public class BmhPlaylistUtility {
 		
 		if (getTransmitterID().equalsIgnoreCase("ANY")) {
 			exchange.getOut().setHeader("trans_check", Boolean.TRUE);
-		} else if (getTransmitterID() == message.getTransmitterGroup()) {
+		} else if (getTransmitterID().equalsIgnoreCase(message.getTransmitterGroup())) {
 			exchange.getOut().setHeader("trans_check", Boolean.TRUE);
 		}
 		
@@ -62,11 +62,14 @@ public class BmhPlaylistUtility {
 		applicationEventPublisher.publishEvent(event);
 	}
 	
-	public void addMessage(DacPlaylistMessageMetadata message) {
+	public void addMessage(DacPlaylistMessageMetadata message) throws Exception {
 		getService().add(message);
 		
-		PlaylistService.CustomSpringEvent event = getService().new CustomSpringEvent(message,"PLAY");
+		if (getService().getCurrent() != null) {
 		
-		applicationEventPublisher.publishEvent(event);
+			PlaylistService.CustomSpringEvent event = getService().new CustomSpringEvent(message,"PLAY");
+		
+			applicationEventPublisher.publishEvent(event);
+		}
 	}
 }
