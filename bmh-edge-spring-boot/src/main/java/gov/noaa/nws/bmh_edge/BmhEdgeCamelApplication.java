@@ -33,8 +33,8 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import gov.noaa.nws.bmh_edge.services.PlaylistService;
-import gov.noaa.nws.bmh_edge.services.PlaylistService.CustomSpringEvent;
+import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
+import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 
 //CHECKSTYLE:OFF
 /**
@@ -44,12 +44,12 @@ import gov.noaa.nws.bmh_edge.services.PlaylistService.CustomSpringEvent;
 @EnableAsync
 // load the spring xml file from classpath
 @ImportResource("classpath:bmh-edge-camel.xml")
-public class BmhEdgeCamelApplication implements ApplicationListener<PlaylistService.CustomSpringEvent> {
+public class BmhEdgeCamelApplication implements ApplicationListener<PlayListIngestEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(BmhEdgeCamelApplication.class);
 	
 	// resource should be a singleton since object is used here and BmhPlaylistUtility
 	@Resource
-	private PlaylistService service;
+	private NormalPlaylistService service;
 	
 	@Value("${camel.springboot.path}")
 	String contextPath;
@@ -86,12 +86,12 @@ public class BmhEdgeCamelApplication implements ApplicationListener<PlaylistServ
     }
 
 	@Override
-	public void onApplicationEvent(CustomSpringEvent event) {
+	public void onApplicationEvent(PlayListIngestEvent event) {
 		try {
 			logger.info("Play Event Received");
 			if (!service.getActive().get() && (service.getCurrent() != null)) {
 				logger.info("Activating Broadcast Cycle");
-				service.play();
+				service.broadcastCycle();
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

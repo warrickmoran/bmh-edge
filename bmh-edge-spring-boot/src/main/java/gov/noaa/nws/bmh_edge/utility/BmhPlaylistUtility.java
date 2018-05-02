@@ -6,18 +6,15 @@ import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
-import com.raytheon.uf.common.bmh.datamodel.transmitter.Transmitter;
-
-import gov.noaa.nws.bmh_edge.services.PlaylistService;
-import gov.noaa.nws.bmh_edge.services.PlaylistService.CustomSpringEvent;
+import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
+import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 
 public class BmhPlaylistUtility {
 	private String transmitterID;
 	@Resource
-	private PlaylistService service;
+	private NormalPlaylistService service;
 	
 	@Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -32,12 +29,12 @@ public class BmhPlaylistUtility {
 	}
 	
 
-	public PlaylistService getService() {
+	public NormalPlaylistService getService() {
 		return service;
 	}
 
 
-	public void setService(PlaylistService service) {
+	public void setService(NormalPlaylistService service) {
 		this.service = service;
 	}
 
@@ -57,7 +54,7 @@ public class BmhPlaylistUtility {
 	public void updatePlaylist(DacPlaylist playlist) throws Exception {
 		getService().add(playlist);
 		
-		PlaylistService.CustomSpringEvent event = getService().new CustomSpringEvent(playlist,"PLAY");
+		PlayListIngestEvent event = new PlayListIngestEvent(this,"PLAY");
 		
 		applicationEventPublisher.publishEvent(event);
 	}
@@ -67,7 +64,7 @@ public class BmhPlaylistUtility {
 		
 		if (getService().getCurrent() != null) {
 		
-			PlaylistService.CustomSpringEvent event = getService().new CustomSpringEvent(message,"PLAY");
+			PlayListIngestEvent event = new PlayListIngestEvent(this,"PLAY");
 		
 			applicationEventPublisher.publishEvent(event);
 		}

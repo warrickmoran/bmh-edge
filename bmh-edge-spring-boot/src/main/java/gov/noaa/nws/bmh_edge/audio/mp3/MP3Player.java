@@ -2,6 +2,7 @@ package gov.noaa.nws.bmh_edge.audio.mp3;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -20,44 +21,85 @@ import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 //
 public class MP3Player {
 	private static final Logger logger = LoggerFactory.getLogger(MP3Player.class);
+	private static Object lock;
+	private static AtomicBoolean interrupt;
+	AudioInputStream din;
+	
+	static {
+		lock = new Object();
+		interrupt = new AtomicBoolean();
+	}
+
+	/**
+	 * @return the din
+	 */
+	public AudioInputStream getDin() {
+		return din;
+	}
+
+	/**
+	 * @param din the din to set
+	 */
+	public void setDin(AudioInputStream din) {
+		this.din = din;
+	}
 
 	public void play(BroadcastMsg message) throws Exception {
 		play(message.getInputMessage().getOriginalFile());
 	}
 
 	public void play(String filename) throws Exception {
-		play(new File(filename));
+		synchronized(MP3Player.lock) {
+			MP3Player.interrupt.set(true);
+			play(new File(filename));
+		}
 	}
-
-	private void play(File file) throws Exception {
-		AudioInputStream in = AudioSystem.getAudioInputStream(file);
-		AudioInputStream din = null;
+	
+	public void play(AudioInputStream in) throws IOException, LineUnavailableException {
 		AudioFormat baseFormat = in.getFormat();
 		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
 				baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-		din = AudioSystem.getAudioInputStream(decodedFormat, in);
-		// Play now.
-		rawplay(decodedFormat, din);
-		in.close();
+		setDin(in);
+		rawplay(decodedFormat);
 	}
 
-	private void rawplay(AudioFormat targetFormat, AudioInputStream din) throws IOException, LineUnavailableException {
+	private AudioInputStream play(File file) throws Exception {
+		AudioInputStream in = AudioSystem.getAudioInputStream(file);
+		AudioFormat baseFormat = in.getFormat();
+		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
+				baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
+		setDin(AudioSystem.getAudioInputStream(decodedFormat, in));
+		// Play now.
+		rawplay(decodedFormat);
+		in.close();
+		
+		return din;
+	}
+
+	private void rawplay(AudioFormat targetFormat) throws IOException, LineUnavailableException {
 		byte[] data = new byte[4096];
 		SourceDataLine line = getLine(targetFormat);
 		if (line != null) {
 			// Start
 			line.start();
 			int nBytesRead = 0, nBytesWritten = 0;
-			while (nBytesRead != -1) {
-				nBytesRead = din.read(data, 0, data.length);
+			while ((nBytesRead != -1)) {
+				if (interrupt.get()) {
+					if (getDin().markSupported()) {
+						getDin().mark(nBytesRead);
+						break;
+					}
+				}
+				nBytesRead = getDin().read(data, 0, data.length);
 				if (nBytesRead != -1)
 					nBytesWritten = line.write(data, 0, nBytesRead);
+				
 			}
 			// Stop
 			line.drain();
 			line.stop();
 			line.close();
-			din.close();
+			getDin().close();
 		}
 
 	}

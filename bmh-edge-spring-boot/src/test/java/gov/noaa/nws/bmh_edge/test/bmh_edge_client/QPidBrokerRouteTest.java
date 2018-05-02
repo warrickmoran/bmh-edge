@@ -111,7 +111,7 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 		try {
 			byte[] serialize = SerializationUtil.transformToThrift(playListXML);
 		
-			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", serialize, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
+			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", playListXML, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}
@@ -128,9 +128,10 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 		mock.expectedBodyReceived().body().isInstanceOf(com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata.class);
 
 		try {
-			byte[] serialize = SerializationUtil.transformToThrift(playListMetaXML);
+			//byte[] serialize = SerializationUtil.transformToThrift(playListMetaXML);
+			
 		
-			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", serialize, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
+			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", playListMetaXML, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}
@@ -149,7 +150,7 @@ public class QPidBrokerRouteTest extends CamelTestSupport {
 		try {
 			byte[] serialize = SerializationUtil.transformToThrift(invalidXML);
 		
-			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", serialize, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
+			template.sendBodyAndHeader("amqp:queue:ingest?preserveMessageQos=true", invalidXML, "JMSDeliveryMode", javax.jms.DeliveryMode.NON_PERSISTENT);
 		} catch (CamelExecutionException x) {
 			x.printStackTrace();
 		}

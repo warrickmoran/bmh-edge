@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
@@ -13,7 +14,7 @@ import javax.xml.bind.Marshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,42 +24,25 @@ import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageId;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 
-import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 import gov.noaa.nws.bmh_edge.audio.mp3.MP3Player;
+import gov.noaa.nws.bmh_edge.services.events.InterruptPlaylistMessageMetadataEvent;
+import gov.noaa.nws.bmh_edge.services.events.PlaylistMessageMetadataEvent;
 import gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility;
 
-@Service
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class PlaylistService {
-	private static final Logger logger = LoggerFactory.getLogger(PlaylistService.class);
+public abstract class PlaylistServiceAbstract {
+	private static final Logger logger = LoggerFactory.getLogger(PlaylistServiceAbstract.class);
 	private MP3Player player;
 	private ConcurrentHashMap<Long, DacPlaylistMessageMetadata> broadcast;
 	private DacPlaylist current;
+
 	@Resource
 	GoogleSpeechUtility googleSpeech;
 
 	private static AtomicBoolean active;
 
-	public class CustomSpringEvent extends ApplicationEvent {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private String message;
-
-		public CustomSpringEvent(Object source, String message) {
-			super(source);
-			this.message = message;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-	}
-
-	public PlaylistService() {
+	public PlaylistServiceAbstract() {
 		active = new AtomicBoolean();
-		broadcast = new ConcurrentHashMap<>();
+		broadcast = new ConcurrentHashMap<Long, DacPlaylistMessageMetadata>();
 	}
 
 	/**
@@ -73,7 +57,7 @@ public class PlaylistService {
 	 *            the active to set
 	 */
 	public void setActive(AtomicBoolean active) {
-		this.active = active;
+		PlaylistServiceAbstract.active = active;
 	}
 
 	/**
@@ -112,63 +96,20 @@ public class PlaylistService {
 	 * 
 	 * @throws Exception
 	 */
-	public void play() throws Exception {
-		if (!getBroadcast().isEmpty()) {
-			if (player == null) {
-				player = new MP3Player();
-			}
-
-			getActive().set(true);
-
-			logger.info("Starting Broadcast Cycle");
-
-			while (getActive().get()) {
-				printCurrentPlaylist();
-				// check for setRecognized to determine if audio file is available
-				getCurrent().getMessages().forEach((k) -> {
-					try {
-						expiration();
-						if (getBroadcast().containsKey(k.getBroadcastId())) {
-							if (getBroadcast().get(k.getBroadcastId()).isRecognized()) {
-								logger.info(String.format("Playing Message -> %d", k.getBroadcastId()));
-								logger.info(String.format("Message Content -> %s", getBroadcast().get(k.getBroadcastId()).getMessageText()));
-								player.play(getBroadcast().get(k.getBroadcastId()).getSoundFiles().get(0));
-							}
-						} else {
-							if (isExpired(k.getBroadcastId()) ) {
-								logger.info(String.format("Message Expired -> %d", k.getBroadcastId()));
-							} else {
-								logger.error(String.format("Message Unavailable -> %d", k.getBroadcastId()));
-							}
-						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
-
-				// add pause between messages
-				Thread.sleep(3000);
-			}
-
-			logger.info("Exiting Broadcast Cycle");
-		} else {
-			logger.error("Empty Broadcast Cycle");
-		}
-	}
+	public abstract void broadcastCycle();
 
 	public void add(DacPlaylist playlist) throws Exception {
-		if ((getCurrent() != null) && (getBroadcast() != null)) {
-			for (DacPlaylistMessageId id : playlist.getMessages()) {
-				if (!getCurrent().getMessages().contains(id)) {
-					remove(id.getBroadcastId());
+			if ((getCurrent() != null) && (getBroadcast() != null)) {
+				for (DacPlaylistMessageId id : playlist.getMessages()) {
+					if (!getCurrent().getMessages().contains(id)) {
+						remove(id.getBroadcastId());
+					}
 				}
 			}
-		}
 
-		logger.info(String.format("Setting Current Playlist: %s", playlist.getTraceId()));
+			logger.info(String.format("Setting Current Playlist -> %s", playlist.getTraceId()));
 
-		setCurrent(playlist);
+			setCurrent(playlist);
 	}
 
 	public void add(DacPlaylistMessageMetadata message) throws Exception {
@@ -184,24 +125,8 @@ public class PlaylistService {
 		}
 		getBroadcast().put(message.getBroadcastId(), message);
 	}
-
-	private void expiration() {
-		getCurrent().getMessages().forEach((k) -> {
-			if (isExpired(k.getBroadcastId())) {
-				logger.info(String.format("Message Expiration - > %d", k.getBroadcastId()));
-				remove(k.getBroadcastId());
-			}
-		});
-	}
-
-	private Boolean isExpired(Long id) {
-		if (getBroadcast().containsKey(id)) {
-			return getBroadcast().get(id).getExpire().compareTo(Calendar.getInstance()) < 0;
-		}
-		return false;
-	}
-
-	private Boolean remove(Long id) {
+	
+	protected Boolean remove(Long id) {
 		Boolean ret = false;
 
 		if (getBroadcast().containsKey(id)) {
@@ -218,7 +143,44 @@ public class PlaylistService {
 		return ret;
 	}
 
-	private void printCurrentPlaylist() throws JAXBException {
+	protected Boolean isExpired(Long id) {
+		if (getBroadcast().containsKey(id)) {
+			return getBroadcast().get(id).getExpire().compareTo(Calendar.getInstance()) < 0;
+		}
+		return false;
+	}
+	
+	protected void expiration() {
+		getCurrent().getMessages().forEach((k) -> {
+			if (isExpired(k.getBroadcastId())) {
+				logger.info(String.format("Message Expiration -> %d", k.getBroadcastId()));
+				remove(k.getBroadcastId());
+			}
+		});
+	}
+	
+	protected void play(DacPlaylistMessageId id) throws Exception {
+		if (player == null) {
+			player = new MP3Player();
+		}
+
+		if (getBroadcast().containsKey(id.getBroadcastId())) {
+			if (getBroadcast().get(id.getBroadcastId()).isRecognized()) {
+				logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
+				logger.info(String.format("Message Content -> %s",
+						getBroadcast().get(id.getBroadcastId()).getMessageText()));
+				player.play(getBroadcast().get(id.getBroadcastId()).getSoundFiles().get(0));
+			}
+		} else {
+			if (isExpired(id.getBroadcastId())) {
+				logger.info(String.format("Message Expired -> %d", id.getBroadcastId()));
+			} else {
+				logger.error(String.format("Message Unavailable -> %d", id.getBroadcastId()));
+			}
+		}
+	}
+	
+	protected void printCurrentPlaylist() throws JAXBException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(DacPlaylist.class);
 		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 		final StringWriter w = new StringWriter();
@@ -228,7 +190,7 @@ public class PlaylistService {
 
 		if (getCurrent() != null) {
 			jaxbMarshaller.marshal(getCurrent(), w);
-			logger.info(String.format("Current Playlist: %s", w.toString()));
+			logger.info(String.format("Current Playlist -> %s", w.toString()));
 		} else {
 			logger.info("--Empty Playlist--");
 		}
