@@ -43,19 +43,13 @@ public class GoogleSpeechUtility {
 	}
 
 	public DacPlaylistMessageMetadata createTextToSpeechBean(DacPlaylistMessageMetadata message) throws Exception {
-		if ((message != null)) {
+		if ((message != null) && !message.isRecognized()) {
 				message.getSoundFiles().set(0,
 						String.format("%s/%s.mp3", getAudioOut(), message.getSoundFiles().get(0)));
 				// skip if MP3 already exists
 				if (!(new File(message.getSoundFiles().get(0)).exists())) {
 					if (getSynthesizeText().synthesizeText(message.getMessageText(), message.getSoundFiles().get(0))) {
 						message.setRecognized(true);
-						
-						// send event for possible interrupt message
-						if (message.isAlertTone() || message.isWarning() || message.isWatch() ) {
-							InterruptPlaylistMessageMetadataEvent event = new InterruptPlaylistMessageMetadataEvent(this,message);
-							applicationEventPublisher.publishEvent(event);
-						}
 					} else {
 						message.setRecognized(false);
 						throw new Exception("Unable to Create BMH MP3");
@@ -64,7 +58,7 @@ public class GoogleSpeechUtility {
 					message.setRecognized(true);
 				}
 		} else {
-			logger.error(String.format("Playlist Metadata || Playlist Service == NULL)"));
+			logger.error(String.format("Playlist Metadata || Playlist Service == NULL || MP3 Already Created"));
 		}
 		return message;
 	}

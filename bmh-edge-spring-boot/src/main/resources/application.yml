@@ -30,10 +30,10 @@ google:
 # --------------------------------------------
 bmh:
   qpid:
-    host: localhost
-    #host: bmh2
-    queue: ingest
-    #queue: BMH.EDGE
+    #host: localhost
+    host: bmh2
+    #queue: ingest
+    queue: BMH.EDGE
   transmitter:
     id: HGR
 

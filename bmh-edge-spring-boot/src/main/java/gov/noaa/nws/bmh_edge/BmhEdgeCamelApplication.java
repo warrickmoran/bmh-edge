@@ -44,7 +44,7 @@ import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 @EnableAsync
 // load the spring xml file from classpath
 @ImportResource("classpath:bmh-edge-camel.xml")
-public class BmhEdgeCamelApplication implements ApplicationListener<PlayListIngestEvent> {
+public class BmhEdgeCamelApplication {
 	private static final Logger logger = LoggerFactory.getLogger(BmhEdgeCamelApplication.class);
 	
 	// resource should be a singleton since object is used here and BmhPlaylistUtility
@@ -84,19 +84,5 @@ public class BmhEdgeCamelApplication implements ApplicationListener<PlayListInge
         executor.initialize();
         return executor;
     }
-
-	@Override
-	public void onApplicationEvent(PlayListIngestEvent event) {
-		try {
-			logger.info("Play Event Received");
-			if (!service.getActive().get() && (service.getCurrent() != null)) {
-				logger.info("Activating Broadcast Cycle");
-				service.broadcastCycle();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }
 //CHECKSTYLE:ON

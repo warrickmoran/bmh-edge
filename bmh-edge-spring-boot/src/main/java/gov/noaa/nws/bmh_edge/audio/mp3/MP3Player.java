@@ -1,12 +1,16 @@
 package gov.noaa.nws.bmh_edge.audio.mp3;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
@@ -15,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
+import com.raytheon.uf.common.bmh.tones.GeneratedTonesBuffer;
 
 //
 // http://www.javazoom.net/mp3spi/documents.html
@@ -55,12 +60,19 @@ public class MP3Player {
 		}
 	}
 	
-	public void play(AudioInputStream in) throws IOException, LineUnavailableException {
-		AudioFormat baseFormat = in.getFormat();
-		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
-				baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-		setDin(in);
-		rawplay(decodedFormat);
+	public void play(GeneratedTonesBuffer stream) throws IOException, LineUnavailableException {
+		AudioFormat format =
+		    new AudioFormat(8000,
+		                    16,
+		                    1,
+		                    true,
+		                    false);
+		AudioInputStream in =
+			    new AudioInputStream(new ByteArrayInputStream(stream.getAlertTones()), format, stream.length()*2);
+		
+		setDin(AudioSystem.getAudioInputStream(format, in));
+		rawplay(format);
+		in.close();
 	}
 
 	private AudioInputStream play(File file) throws Exception {
@@ -84,12 +96,6 @@ public class MP3Player {
 			line.start();
 			int nBytesRead = 0, nBytesWritten = 0;
 			while ((nBytesRead != -1)) {
-				if (interrupt.get()) {
-					if (getDin().markSupported()) {
-						getDin().mark(nBytesRead);
-						break;
-					}
-				}
 				nBytesRead = getDin().read(data, 0, data.length);
 				if (nBytesRead != -1)
 					nBytesWritten = line.write(data, 0, nBytesRead);

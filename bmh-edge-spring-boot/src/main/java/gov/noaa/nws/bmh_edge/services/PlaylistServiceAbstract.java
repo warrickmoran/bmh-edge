@@ -3,6 +3,7 @@ package gov.noaa.nws.bmh_edge.services;
 import java.io.File;
 import java.io.StringWriter;
 import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -32,17 +33,37 @@ import gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility;
 public abstract class PlaylistServiceAbstract {
 	private static final Logger logger = LoggerFactory.getLogger(PlaylistServiceAbstract.class);
 	private MP3Player player;
-	private ConcurrentHashMap<Long, DacPlaylistMessageMetadata> broadcast;
+
+	//	private ConcurrentHashMap<Long, DacPlaylistMessageMetadata> broadcast;
 	private DacPlaylist current;
 
 	@Resource
 	GoogleSpeechUtility googleSpeech;
 
 	private static AtomicBoolean active;
+	
+	@Async
+	/**
+	 * http://www.baeldung.com/spring-async
+	 * 
+	 * @throws Exception
+	 */
+	public abstract CompletableFuture<DacPlaylist> broadcastCycle();
+	
+	public abstract void add(DacPlaylistMessageMetadata message) throws Exception; 
+	
+	public abstract void add(DacPlaylist playlist) throws Exception;
+	
+	protected abstract Boolean remove(Long id);
+	
+	protected abstract Boolean isExpired(Long id);
+	
+	protected abstract void play(DacPlaylistMessageId id) throws Exception;
+	
 
 	public PlaylistServiceAbstract() {
 		active = new AtomicBoolean();
-		broadcast = new ConcurrentHashMap<Long, DacPlaylistMessageMetadata>();
+//		broadcast = new ConcurrentHashMap<Long, DacPlaylistMessageMetadata>();
 	}
 
 	/**
@@ -74,81 +95,28 @@ public abstract class PlaylistServiceAbstract {
 	public void setCurrent(DacPlaylist current) {
 		this.current = current;
 	}
-
-	/**
-	 * @return the broadcast
-	 */
-	public ConcurrentHashMap<Long, DacPlaylistMessageMetadata> getBroadcast() {
-		return broadcast;
-	}
-
-	/**
-	 * @param broadcast
-	 *            the broadcast to set
-	 */
-	public void setBroadcast(ConcurrentHashMap<Long, DacPlaylistMessageMetadata> broadcast) {
-		this.broadcast = broadcast;
-	}
-
-	@Async
-	/**
-	 * http://www.baeldung.com/spring-async
-	 * 
-	 * @throws Exception
-	 */
-	public abstract void broadcastCycle();
-
-	public void add(DacPlaylist playlist) throws Exception {
-			if ((getCurrent() != null) && (getBroadcast() != null)) {
-				for (DacPlaylistMessageId id : playlist.getMessages()) {
-					if (!getCurrent().getMessages().contains(id)) {
-						remove(id.getBroadcastId());
-					}
-				}
-			}
-
-			logger.info(String.format("Setting Current Playlist -> %s", playlist.getTraceId()));
-
-			setCurrent(playlist);
-	}
-
-	public void add(DacPlaylistMessageMetadata message) throws Exception {
-		if (getBroadcast() == null) {
-			setBroadcast(new ConcurrentHashMap<Long, DacPlaylistMessageMetadata>());
-		}
-
-		logger.info(String.format("Adding %d from BroadcastCycle", message.getBroadcastId()));
-		if (googleSpeech != null) {
-			googleSpeech.createTextToSpeechBean(message);
-		} else {
-			logger.error("Google Speech Not Available");
-		}
-		getBroadcast().put(message.getBroadcastId(), message);
-	}
 	
-	protected Boolean remove(Long id) {
-		Boolean ret = false;
-
-		if (getBroadcast().containsKey(id)) {
-			logger.info(String.format("Removing %d from BroadcastCycle", id));
-			File mp3File = new File(getBroadcast().get(id).getSoundFiles().get(0));
-			if (!mp3File.delete()) {
-				logger.error(String.format("Unable to Delete MP3 File for %d", id));
-			}
-			if (getBroadcast().remove(id) != null) {
-				ret = true;
-			}
+	protected MP3Player getPlayer() {
+		if (player == null) {
+			player = new MP3Player();
 		}
-
-		return ret;
+		return player;
 	}
 
-	protected Boolean isExpired(Long id) {
-		if (getBroadcast().containsKey(id)) {
-			return getBroadcast().get(id).getExpire().compareTo(Calendar.getInstance()) < 0;
-		}
-		return false;
-	}
+//	/**
+//	 * @return the broadcast
+//	 */
+//	public ConcurrentHashMap<Long, DacPlaylistMessageMetadata> getBroadcast() {
+//		return broadcast;
+//	}
+//
+//	/**
+//	 * @param broadcast
+//	 *            the broadcast to set
+//	 */
+//	public void setBroadcast(ConcurrentHashMap<Long, DacPlaylistMessageMetadata> broadcast) {
+//		this.broadcast = broadcast;
+//	}
 	
 	protected void expiration() {
 		getCurrent().getMessages().forEach((k) -> {
@@ -157,27 +125,6 @@ public abstract class PlaylistServiceAbstract {
 				remove(k.getBroadcastId());
 			}
 		});
-	}
-	
-	protected void play(DacPlaylistMessageId id) throws Exception {
-		if (player == null) {
-			player = new MP3Player();
-		}
-
-		if (getBroadcast().containsKey(id.getBroadcastId())) {
-			if (getBroadcast().get(id.getBroadcastId()).isRecognized()) {
-				logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
-				logger.info(String.format("Message Content -> %s",
-						getBroadcast().get(id.getBroadcastId()).getMessageText()));
-				player.play(getBroadcast().get(id.getBroadcastId()).getSoundFiles().get(0));
-			}
-		} else {
-			if (isExpired(id.getBroadcastId())) {
-				logger.info(String.format("Message Expired -> %d", id.getBroadcastId()));
-			} else {
-				logger.error(String.format("Message Unavailable -> %d", id.getBroadcastId()));
-			}
-		}
 	}
 	
 	protected void printCurrentPlaylist() throws JAXBException {

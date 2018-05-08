@@ -3,21 +3,25 @@ package gov.noaa.nws.bmh_edge.utility;
 import javax.annotation.Resource;
 
 import org.apache.camel.Exchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
+
+import gov.noaa.nws.bmh_edge.services.InterruptPlaylistService;
 import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
 import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 
 public class BmhPlaylistUtility {
+	private static final Logger logger = LoggerFactory.getLogger(BmhPlaylistUtility.class);
 	private String transmitterID;
 	@Resource
 	private NormalPlaylistService service;
-	
-	@Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+	@Resource
+	private InterruptPlaylistService interruptService;
 
 	public String getTransmitterID() {
 		return transmitterID;
@@ -54,19 +58,30 @@ public class BmhPlaylistUtility {
 	public void updatePlaylist(DacPlaylist playlist) throws Exception {
 		getService().add(playlist);
 		
-		PlayListIngestEvent event = new PlayListIngestEvent(this,"PLAY");
-		
-		applicationEventPublisher.publishEvent(event);
+		startBroadcast();
 	}
 	
 	public void addMessage(DacPlaylistMessageMetadata message) throws Exception {
+		// set recognized to false which will allow TTS
+		message.setRecognized(false);
+		
 		getService().add(message);
 		
 		if (getService().getCurrent() != null) {
-		
-			PlayListIngestEvent event = new PlayListIngestEvent(this,"PLAY");
-		
-			applicationEventPublisher.publishEvent(event);
+			startBroadcast();
+		}
+	}
+	
+	private void startBroadcast() {
+		try {
+			logger.info("Play Event Received");
+			if (!service.getActive().get() && (service.getCurrent() != null)) {
+				logger.info("Activating Broadcast Cycle");
+				service.broadcastCycle();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
