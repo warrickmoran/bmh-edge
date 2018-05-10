@@ -136,7 +136,6 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 				}
 				
 				if (getBroadcast().isSAMETones()) {
-					// need to check same padding value
 					logger.info(String.format("Playing SameTone -> %s", getBroadcast().getMessageText()));
 					getPlayer().play(TonesGenerator.getSAMEAlertTones(getBroadcast().getSAMEtone(), getBroadcast().isAlertTone(), true, 3).getSameTones());
 					
@@ -145,12 +144,10 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 				getPlayer().play(getBroadcast().getSoundFiles().get(0));
 				
 				if(getBroadcast().isSAMETones()) {
-					// need to check same padding value
 					logger.info(String.format("Playing EndTones -> %s", getBroadcast().getMessageText()));
 					getPlayer().play(TonesGenerator.getEndOfMessageTones(3).array());
 					
 				}
-				//ByteBufferBackedInputStream end = new ByteBufferBackedInputStream(ByteBuffer.wrap(TonesGenerator.getEndOfMessageTones(sameEOMPadding)))
 			}
 		} else {
 			if (isExpired(id.getBroadcastId())) {

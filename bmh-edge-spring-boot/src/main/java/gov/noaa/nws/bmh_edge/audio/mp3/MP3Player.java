@@ -27,13 +27,7 @@ import com.raytheon.uf.common.bmh.tones.GeneratedTonesBuffer;
 public class MP3Player {
 	private static final Logger logger = LoggerFactory.getLogger(MP3Player.class);
 	private static Object lock;
-	private static AtomicBoolean interrupt;
 	AudioInputStream din;
-	
-	static {
-		lock = new Object();
-		interrupt = new AtomicBoolean();
-	}
 
 	/**
 	 * @return the din
@@ -49,35 +43,38 @@ public class MP3Player {
 		this.din = din;
 	}
 
+	/**
+	 * Method for playing MP3 linked to BMH BroadcastMsg
+	 * @param message
+	 * @throws Exception
+	 */
 	public void play(BroadcastMsg message) throws Exception {
-		play(message.getInputMessage().getOriginalFile());
+		synchronized(MP3Player.lock) { 
+			play(message.getInputMessage().getOriginalFile());
+		}
 	}
 
+	/**
+	 * Method for playing MP3
+	 * @param filename
+	 * @throws Exception
+	 */
 	public void play(String filename) throws Exception {
 		synchronized(MP3Player.lock) {
-			MP3Player.interrupt.set(true);
 			play(new File(filename));
 		}
 	}
 	
+	/**
+	 * Method for playing BMH tones
+	 * @param stream
+	 * @throws IOException
+	 * @throws LineUnavailableException
+	 */
 	public void play(byte[] stream) throws IOException, LineUnavailableException {
-//		AudioFormat format =
-//		    new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-//		    				8000,
-//		                    16,
-//		                    1,
-//		                    16/1,
-//		                    16,
-//		                    false);
 		AudioFormat format = new AudioFormat(Encoding.ULAW,
                 8000, 8, 1, 1, 8000, true);
 
-//		AudioFormat format =
-//			    new AudioFormat(8000,
-//			                    8,
-//			                    1,
-//			                    true,
-//			                    false);
 		AudioInputStream in =
 			    new AudioInputStream(new ByteArrayInputStream(stream), format, stream.length);
 		

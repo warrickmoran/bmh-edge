@@ -30,12 +30,11 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 	@Resource
 	private InterruptPlaylistService interruptService;
 	public static Object INTERRUPT_THREAD_OBJECT;
-	
+
 	static {
 		interrupt = new AtomicBoolean();
 		interrupt.set(false);
 	}
-	
 
 	public NormalPlaylistService() {
 		super();
@@ -107,7 +106,7 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 		} else {
 			logger.error("Empty Broadcast Cycle");
 		}
-		
+
 		return CompletableFuture.completedFuture(getCurrent());
 	}
 
@@ -140,12 +139,11 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 		} else {
 			logger.error("Google Speech Not Available");
 		}
-		
+
 		getBroadcast().put(message.getBroadcastId(), message);
-		
-		
+
 		// change to interrupt state for possible interrupt message
-		if (message.isAlertTone() || message.isWarning() || message.isWatch() ) {
+		if (message.isAlertTone() || message.isWarning() || message.isWatch()) {
 			getInterruptService().getCurrent().getMessages().forEach(k -> {
 				if (k.getBroadcastId() == message.getBroadcastId()) {
 					// add the interrupt service to possible play
@@ -160,7 +158,7 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 			});
 		}
 	}
-	
+
 	protected void interrupt(Boolean interrupt) {
 		getInterrupt().set(interrupt);
 	}
@@ -188,20 +186,21 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 		}
 		return false;
 	}
-	
+
 	protected void play(DacPlaylistMessageId id) throws Exception {
 		if (getInterrupt().get()) {
 			playInterrupt();
 			getInterrupt().set(false);
 		}
-		
-		if (getBroadcast().containsKey(id.getBroadcastId())) {
-			if (getBroadcast().get(id.getBroadcastId()).isRecognized()) {
-				logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
-				logger.info(String.format("Message Content -> %s",
-						getBroadcast().get(id.getBroadcastId()).getMessageText()));
-				getPlayer().play(getBroadcast().get(id.getBroadcastId()).getSoundFiles().get(0));
-			}
+
+		if (getBroadcast().containsKey(id.getBroadcastId()) && getBroadcast().get(id.getBroadcastId()).isRecognized()) {
+			DacPlaylistMessageMetadata message = getBroadcast().get(id.getBroadcastId());
+			
+			logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
+			logger.info(
+					String.format("Message Content -> %s", message.getMessageText()));
+			getPlayer().play(message.getSoundFiles().get(0));
+
 		} else {
 			if (isExpired(id.getBroadcastId())) {
 				logger.info(String.format("Message Expired -> %d", id.getBroadcastId()));
@@ -210,9 +209,9 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 			}
 		}
 	}
-	
+
 	protected void playInterrupt() {
-		CompletableFuture<DacPlaylist> future = getInterruptService().broadcastCycle(); 
+		CompletableFuture<DacPlaylist> future = getInterruptService().broadcastCycle();
 		future.thenApply(s -> completeInterrupt(s));
 		try {
 			// wait for interrupt completion
@@ -223,7 +222,7 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private Boolean completeInterrupt(DacPlaylist playlist) {
 		String.format("Completed Interrupt Playlist %d", playlist.getTraceId());
 		interrupt(false);
