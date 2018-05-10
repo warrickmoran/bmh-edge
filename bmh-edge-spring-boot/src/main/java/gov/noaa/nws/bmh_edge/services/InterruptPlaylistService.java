@@ -123,7 +123,12 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 				logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
 				logger.info(String.format("Message Content -> %s", getBroadcast().getMessageText()));
 
-				getPlayer().play(TonesGenerator.getOnlyAlertTones());
+				//if (getBroadcast().isSAMETones()) {
+				//	getPlayer().play(TonesGenerator.getSAMEAlertTones(sameHeader, includeAlertTone, includeSilence, samePadding));
+				//} else 
+				if(getBroadcast().isAlertTone()) {
+					getPlayer().play(TonesGenerator.getOnlyAlertTones());
+				}
 				getPlayer().play(getBroadcast().getSoundFiles().get(0));
 				//ByteBufferBackedInputStream end = new ByteBufferBackedInputStream(ByteBuffer.wrap(TonesGenerator.getEndOfMessageTones(sameEOMPadding)))
 			}
