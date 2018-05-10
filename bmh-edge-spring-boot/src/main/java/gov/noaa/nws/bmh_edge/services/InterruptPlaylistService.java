@@ -29,6 +29,7 @@ import com.raytheon.uf.common.bmh.dac.tones.TonesGenerator;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageId;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
+import com.raytheon.uf.common.bmh.tones.ToneGenerationException;
 
 import gov.noaa.nws.bmh_edge.audio.mp3.MP3Player;
 import gov.noaa.nws.bmh_edge.services.events.InterruptPlaylistMessageMetadataEvent;
@@ -44,6 +45,12 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 
 	public InterruptPlaylistService() {
 		super();
+		try {
+			TonesGenerator.getSAMEAlertTones(" ", false, false, 3);
+		} catch (ToneGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public DacPlaylistMessageMetadata getBroadcast() {
@@ -122,14 +129,27 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 			if (getBroadcast().isRecognized()) {
 				logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
 				logger.info(String.format("Message Content -> %s", getBroadcast().getMessageText()));
-
-				//if (getBroadcast().isSAMETones()) {
-				//	getPlayer().play(TonesGenerator.getSAMEAlertTones(sameHeader, includeAlertTone, includeSilence, samePadding));
-				//} else 
+				
 				if(getBroadcast().isAlertTone()) {
-					getPlayer().play(TonesGenerator.getOnlyAlertTones());
+					logger.info(String.format("Playing AlertTone -> %s", getBroadcast().getMessageText()));
+					getPlayer().play(TonesGenerator.getOnlyAlertTones().getAlertTones());
 				}
+				
+				if (getBroadcast().isSAMETones()) {
+					// need to check same padding value
+					logger.info(String.format("Playing SameTone -> %s", getBroadcast().getMessageText()));
+					getPlayer().play(TonesGenerator.getSAMEAlertTones(getBroadcast().getSAMEtone(), getBroadcast().isAlertTone(), true, 3).getSameTones());
+					
+				}
+				
 				getPlayer().play(getBroadcast().getSoundFiles().get(0));
+				
+				if(getBroadcast().isSAMETones()) {
+					// need to check same padding value
+					logger.info(String.format("Playing EndTones -> %s", getBroadcast().getMessageText()));
+					getPlayer().play(TonesGenerator.getEndOfMessageTones(3).array());
+					
+				}
 				//ByteBufferBackedInputStream end = new ByteBufferBackedInputStream(ByteBuffer.wrap(TonesGenerator.getEndOfMessageTones(sameEOMPadding)))
 			}
 		} else {

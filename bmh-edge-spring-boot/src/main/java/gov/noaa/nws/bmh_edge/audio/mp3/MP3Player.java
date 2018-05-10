@@ -60,17 +60,26 @@ public class MP3Player {
 		}
 	}
 	
-	public void play(GeneratedTonesBuffer stream) throws IOException, LineUnavailableException {
-		AudioFormat format =
-		    new AudioFormat(AudioFormat.Encoding.ULAW,
-		    				8000,
-		                    16,
-		                    1,
-		                    16/1,
-		                    16,
-		                    false);
+	public void play(byte[] stream) throws IOException, LineUnavailableException {
+//		AudioFormat format =
+//		    new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+//		    				8000,
+//		                    16,
+//		                    1,
+//		                    16/1,
+//		                    16,
+//		                    false);
+		AudioFormat format = new AudioFormat(Encoding.ULAW,
+                8000, 8, 1, 1, 8000, true);
+
+//		AudioFormat format =
+//			    new AudioFormat(8000,
+//			                    8,
+//			                    1,
+//			                    true,
+//			                    false);
 		AudioInputStream in =
-			    new AudioInputStream(new ByteArrayInputStream(stream.getAlertTones()), format, stream.length()*2);
+			    new AudioInputStream(new ByteArrayInputStream(stream), format, stream.length);
 		
 		setDin(AudioSystem.getAudioInputStream(format, in));
 		rawplay(format);
