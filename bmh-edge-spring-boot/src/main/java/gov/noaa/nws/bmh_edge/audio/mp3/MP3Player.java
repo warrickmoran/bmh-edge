@@ -62,10 +62,12 @@ public class MP3Player {
 	
 	public void play(GeneratedTonesBuffer stream) throws IOException, LineUnavailableException {
 		AudioFormat format =
-		    new AudioFormat(8000,
+		    new AudioFormat(AudioFormat.Encoding.ULAW,
+		    				8000,
 		                    16,
 		                    1,
-		                    true,
+		                    16/1,
+		                    16,
 		                    false);
 		AudioInputStream in =
 			    new AudioInputStream(new ByteArrayInputStream(stream.getAlertTones()), format, stream.length()*2);
