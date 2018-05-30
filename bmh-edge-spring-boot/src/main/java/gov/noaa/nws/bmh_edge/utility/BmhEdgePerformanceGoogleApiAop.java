@@ -13,29 +13,51 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class BmhEdgePerformanceGoogleApiAop.
+ */
 @Configuration
 @EnableAspectJAutoProxy
 @Aspect
 public class BmhEdgePerformanceGoogleApiAop {
 	     
-	    @Pointcut(
+	    /**
+    	 * Monitor.
+    	 */
+    	@Pointcut(
 	      "execution(* gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility.*(..))"
 	    )
 	    public void monitor() { }
 	     
-	    @Bean
+	    /**
+    	 * Performance monitor interceptor.
+    	 *
+    	 * @return the performance monitor interceptor
+    	 */
+    	@Bean
 	    public PerformanceMonitorInterceptor performanceMonitorInterceptor() {
 	        return new PerformanceMonitorInterceptor(true);
 	    }
 	 
-	    @Bean
+	    /**
+    	 * Performance monitor advisor.
+    	 *
+    	 * @return the advisor
+    	 */
+    	@Bean
 	    public Advisor performanceMonitorAdvisor() {
 	        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
 	        pointcut.setExpression("gov.noaa.nws.bmh_edge.utility.BmhEdgePerformanceGoogleApiAop.monitor()");
 	        return new DefaultPointcutAdvisor(pointcut, performanceMonitorInterceptor());
 	    }
 	    
-	    @Bean DacPlaylistMessageMetadata dacPlaylistMessageMetadata() {
+	    /**
+    	 * Dac playlist message metadata.
+    	 *
+    	 * @return the dac playlist message metadata
+    	 */
+    	@Bean DacPlaylistMessageMetadata dacPlaylistMessageMetadata() {
 	    	return new DacPlaylistMessageMetadata();
 	    }
 }

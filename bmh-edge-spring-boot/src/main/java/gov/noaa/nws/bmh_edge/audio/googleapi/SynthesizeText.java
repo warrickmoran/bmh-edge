@@ -34,21 +34,23 @@ import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: Auto-generated Javadoc
 /**
  * Google Cloud TextToSpeech API sample application.
  * https://github.com/GoogleCloudPlatform/java-docs-samples/blob/master/texttospeech/cloud-client/
  */
 public class SynthesizeText {
+	
+	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(SynthesizeText.class);
 
-	// [START tts_synthesize_text]
 	/**
 	 * Demonstrates using the Text to Speech client to synthesize text or ssml.
-	 * 
-	 * @param text
-	 *            the raw text to be synthesized. (e.g., "Hello there!")
-	 * @throws Exception
-	 *             on TextToSpeechClient Errors.
+	 *
+	 * @param text            the raw text to be synthesized. (e.g., "Hello there!")
+	 * @param filename the filename
+	 * @return the boolean
+	 * @throws Exception             on TextToSpeechClient Errors.
 	 */
 	public Boolean synthesizeText(String text, String filename) throws Exception {
 
@@ -91,56 +93,13 @@ public class SynthesizeText {
 			return Boolean.TRUE;
 		}
 	}
-	// [END tts_synthesize_text]
-
-	// [START tts_synthesize_ssml]
-	/**
-	 * Demonstrates using the Text to Speech client to synthesize text or ssml.
-	 *
-	 * Note: ssml must be well-formed according to:
-	 * (https://www.w3.org/TR/speech-synthesis/ Example: <speak>Hello there.</speak>
-	 * 
-	 * @param ssml
-	 *            the ssml document to be synthesized. (e.g., "<?xml...")
-	 * @throws Exception
-	 *             on TextToSpeechClient Errors.
-	 */
-	// public void synthesizeSsml(String ssml) throws Exception {
-	// // Instantiates a client
-	// try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
-	// // Set the ssml input to be synthesized
-	// SynthesisInput input = SynthesisInput.newBuilder().setSsml(ssml).build();
-	//
-	// // Build the voice request
-	// VoiceSelectionParams voice =
-	// VoiceSelectionParams.newBuilder().setLanguageCode("en-US") // languageCode =
-	// // "en_us"
-	// .setSsmlGender(SsmlVoiceGender.FEMALE) // ssmlVoiceGender =
-	// SsmlVoiceGender.FEMALE
-	// .build();
-	//
-	// // Select the type of audio file you want returned
-	// AudioConfig audioConfig =
-	// AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3) // MP3 audio.
-	// .build();
-	//
-	// // Perform the text-to-speech request
-	// SynthesizeSpeechResponse response =
-	// textToSpeechClient.synthesizeSpeech(input, voice, audioConfig);
-	//
-	// // Get the audio contents from the response
-	// ByteString audioContents = response.getAudioContent();
-	//
-	// // Write the response to the output file.
-	// try (OutputStream out = new FileOutputStream(outputFilename)) {
-	// out.write(audioContents.toByteArray());
-	// logger.info(String.format("Audio content written to file %s",
-	// outputFilename));
-	// }
-	// }
-	// }
-	// [END tts_synthesize_ssml]
 	
+	/**
+	 * Creates the output directory.
+	 *
+	 * @param filename the filename
+	 * @return the boolean
+	 */
 	private Boolean createOutputDirectory(String filename) {
 		File file = new File(filename);
 		File parent = file.getParentFile();

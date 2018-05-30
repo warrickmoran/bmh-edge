@@ -36,6 +36,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
 import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 
+// TODO: Auto-generated Javadoc
 //CHECKSTYLE:OFF
 /**
  * A sample Spring Boot application that starts the Camel routes.
@@ -45,12 +46,16 @@ import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 // load the spring xml file from classpath
 @ImportResource("classpath:bmh-edge-camel.xml")
 public class BmhEdgeCamelApplication {
+	
+	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(BmhEdgeCamelApplication.class);
 	
+	/** The service. */
 	// resource should be a singleton since object is used here and BmhPlaylistUtility
 	@Resource
 	private NormalPlaylistService service;
 	
+	/** The context path. */
 	@Value("${camel.springboot.path}")
 	String contextPath;
 	
@@ -62,11 +67,18 @@ public class BmhEdgeCamelApplication {
 
     /**
      * A main method to start this application.
+     *
+     * @param args the arguments
      */
     public static void main(String[] args) {
         SpringApplication.run(BmhEdgeCamelApplication.class, args);
     }
     
+    /**
+     * Servlet registration bean.
+     *
+     * @return the servlet registration bean
+     */
     @Bean
     ServletRegistrationBean servletRegistrationBean() {
         ServletRegistrationBean servlet = new ServletRegistrationBean(new CamelHttpTransportServlet(), contextPath+"/*");
@@ -74,6 +86,11 @@ public class BmhEdgeCamelApplication {
         return servlet;
     }
     
+    /**
+     * Async executor.
+     *
+     * @return the executor
+     */
     @Bean
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

@@ -5,10 +5,24 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: Auto-generated Javadoc
 //
 // Manipulate Java Objects
+/**
+ * The Class ObjectUtils.
+ */
 //
 public class ObjectUtils {
+	
+	/**
+	 * Gets the field names and values.
+	 *
+	 * @param obj the obj
+	 * @param publicOnly the public only
+	 * @return the field names and values
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	//Get fields and values from an Object 
 	public static Map<String, Object> getFieldNamesAndValues(final Object obj, boolean publicOnly)
 			throws IllegalArgumentException, IllegalAccessException {
@@ -31,6 +45,15 @@ public class ObjectUtils {
 		return map;
 	}
 	
+	/**
+	 * Prints the field names and values.
+	 *
+	 * @param obj the obj
+	 * @param publicOnly the public only
+	 * @return the string buffer
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	// Print fields and values from an Object 
 	public static StringBuffer printFieldNamesAndValues(final Object obj, boolean publicOnly) throws IllegalArgumentException, IllegalAccessException {
 		StringBuffer ret = new StringBuffer(ObjectUtils.getFieldNamesAndValues(obj,publicOnly).toString());
@@ -38,6 +61,14 @@ public class ObjectUtils {
 		return ret;
 	}
 	
+	/**
+	 * Prints the filed names and values.
+	 *
+	 * @param obj the obj
+	 * @return the string buffer
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	public static StringBuffer printFiledNamesAndValues(final Object obj) throws IllegalArgumentException, IllegalAccessException {
 		return printFieldNamesAndValues(obj, true);
 	}

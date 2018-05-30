@@ -1,66 +1,61 @@
 package gov.noaa.nws.bmh_edge.services;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.nio.ByteBuffer;
-import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.Resource;
-import javax.sound.sampled.AudioSystem;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
-import com.raytheon.uf.common.bmh.dac.tones.StaticTones;
 import com.raytheon.uf.common.bmh.dac.tones.TonesGenerator;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageId;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
-import com.raytheon.uf.common.bmh.tones.ToneGenerationException;
 
-import gov.noaa.nws.bmh_edge.audio.mp3.MP3Player;
-import gov.noaa.nws.bmh_edge.services.events.InterruptPlaylistMessageMetadataEvent;
-import gov.noaa.nws.bmh_edge.services.events.PlaylistMessageMetadataEvent;
-import gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility;
-
+// TODO: Auto-generated Javadoc
+/**
+ * The Class InterruptPlaylistService.
+ */
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class InterruptPlaylistService extends PlaylistServiceAbstract {
+	
+	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(InterruptPlaylistService.class);
 
+	/** The broadcast. */
 	DacPlaylistMessageMetadata broadcast;
 
+	/**
+	 * Instantiates a new interrupt playlist service.
+	 */
 	public InterruptPlaylistService() {
 		super();
-		try {
-			TonesGenerator.getSAMEAlertTones(" ", false, false, 3);
-		} catch (ToneGenerationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
+	/**
+	 * Gets the broadcast.
+	 *
+	 * @return the broadcast
+	 */
 	public DacPlaylistMessageMetadata getBroadcast() {
 		return broadcast;
 	}
 
+	/**
+	 * Sets the broadcast.
+	 *
+	 * @param broadcast the new broadcast
+	 */
 	public void setBroadcast(DacPlaylistMessageMetadata broadcast) {
 		this.broadcast = broadcast;
 	}
 
+	/* (non-Javadoc)
+	 * @see gov.noaa.nws.bmh_edge.services.PlaylistServiceAbstract#broadcastCycle()
+	 */
 	@Async
 	/**
 	 * http://www.baeldung.com/spring-async
@@ -94,12 +89,18 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 		return CompletableFuture.completedFuture(getCurrent());
 	}
 
+	/* (non-Javadoc)
+	 * @see gov.noaa.nws.bmh_edge.services.PlaylistServiceAbstract#add(com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist)
+	 */
 	public void add(DacPlaylist playlist) throws Exception {
 		logger.info(String.format("Setting Interrupt Playlist -> %s", playlist.getTraceId()));
 
 		setCurrent(playlist);
 	}
 
+	/* (non-Javadoc)
+	 * @see gov.noaa.nws.bmh_edge.services.PlaylistServiceAbstract#add(com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata)
+	 */
 	public void add(DacPlaylistMessageMetadata message) throws Exception {
 		logger.info(String.format("Adding %d from BroadcastCycle", message.getBroadcastId()));
 
@@ -111,18 +112,27 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gov.noaa.nws.bmh_edge.services.PlaylistServiceAbstract#remove(java.lang.Long)
+	 */
 	@Override
 	protected Boolean remove(Long id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see gov.noaa.nws.bmh_edge.services.PlaylistServiceAbstract#isExpired(java.lang.Long)
+	 */
 	@Override
 	protected Boolean isExpired(Long id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see gov.noaa.nws.bmh_edge.services.PlaylistServiceAbstract#play(com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageId)
+	 */
 	@Override
 	protected void play(DacPlaylistMessageId id) throws Exception {
 		if (getBroadcast().getBroadcastId() == id.getBroadcastId()) {
