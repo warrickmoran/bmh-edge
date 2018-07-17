@@ -18,7 +18,6 @@ import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 import gov.noaa.nws.bmh_edge.audio.mp3.AudioPlayer;
 import gov.noaa.nws.bmh_edge.utility.GoogleSpeechUtility;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class PlaylistServiceAbstract.
  */
@@ -28,6 +27,7 @@ public abstract class PlaylistServiceAbstract {
 	private static final Logger logger = LoggerFactory.getLogger(PlaylistServiceAbstract.class);
 	
 	/** The player. */
+	@Resource
 	private AudioPlayer player;
 	
 	/** The current. */
@@ -35,7 +35,7 @@ public abstract class PlaylistServiceAbstract {
 
 	/** The google speech. */
 	@Resource
-	GoogleSpeechUtility googleSpeech;
+	protected GoogleSpeechUtility googleSpeech;
 
 	/** The active. */
 	private static AtomicBoolean active;
@@ -149,14 +149,22 @@ public abstract class PlaylistServiceAbstract {
 		return player;
 	}
 	
+	protected GoogleSpeechUtility getGoogleSpeech() {
+		return googleSpeech;
+	}
+
+	protected void setGoogleSpeech(GoogleSpeechUtility googleSpeech) {
+		this.googleSpeech = googleSpeech;
+	}
+
 	/**
 	 * Expiration.
 	 */
 	protected void expiration() {
-		getCurrent().getMessages().forEach((k) -> {
-			if (isExpired(k.getBroadcastId())) {
-				logger.info(String.format("Message Expiration -> %d", k.getBroadcastId()));
-				remove(k.getBroadcastId());
+		getCurrent().getMessages().forEach((playList) -> {
+			if (isExpired(playList.getBroadcastId())) {
+				logger.info(String.format("Message Expiration -> %d", playList.getBroadcastId()));
+				remove(playList.getBroadcastId());
 			}
 		});
 	}

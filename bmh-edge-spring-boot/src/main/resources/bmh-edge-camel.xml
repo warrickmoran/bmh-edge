@@ -49,14 +49,8 @@
 		<!-- <property name="service" ref="broadcastService" /> -->
 	</bean>
 
-	<!-- <bean id="broadcastService" class="gov.noaa.nws.bmh_edge.services.PlaylistService" 
-		/> -->
-
-	<bean id="mp3Player"
-		class="gov.noaa.nws.bmh_edge.audio.mp3.AudioPlayer" />
-
 	<camelContext id="BmhEdge"
-		xmlns="http://camel.apache.org/schema/spring" trace="false">
+		xmlns="http://camel.apache.org/schema/spring" trace="true">
 		<dataFormats>
 			<!-- here we define a Json data format with the id jack. -->
 			<json id="googleAPIJson" library="Jackson" />
@@ -78,8 +72,9 @@
 			</post>
 		</rest>
 
-		<route id="bmh-ingest" trace="false">
+		<route id="bmh-ingest" trace="true">
 			<from uri="amqp:queue:{{bmh.qpid.queue}}" />
+			<!-- Not required since data is received as string (jaxb) or audio -->
 			<!-- <bean ref="serializationUtil" method="transformFromThrift" /> -->
 
 			<choice>
@@ -110,6 +105,17 @@
 					</unmarshal>
 					<to uri="mock:ingestjaxb" />
 					<to uri="seda:audio?size=100&amp;purgeWhenStopping=true" />
+				</when>
+				<when>
+					<!-- we are assuming that any byte[] is audio -->
+					<simple>${body} is 'byte[]'</simple>
+					<!-- <bean ref="playlistUtil" method="addMessage" /> -->
+					<log message="Received BMH Audio" loggingLevel="INFO"
+						logName="gov.noaa.nws" />
+					<!-- <to uri="file:////{{google.speech.dir}}//?fileName=${header.FileName}"/> -->
+					
+					<bean ref="playlistUtil"
+						method="addMessage(${body}, ${header.FileName})" />
 				</when>
 				<otherwise>
 					<log message="Invalid Ingest Object ${body}"
@@ -149,7 +155,6 @@
 			<bean ref="playlistUtil" method="transmitterCheck" />
 			<when>
 				<simple>${header.trans_check}</simple>
-
 			</when>
 		</route>
 

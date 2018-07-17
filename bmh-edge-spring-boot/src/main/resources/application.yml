@@ -36,6 +36,7 @@ bmh:
     queue: BMH.EDGE
   transmitter:
     id: HGR
+    lineOut: hw:1
 
 # how often to trigger the timer
 timer:

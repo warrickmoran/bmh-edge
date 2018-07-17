@@ -21,6 +21,8 @@ import com.raytheon.uf.common.bmh.datamodel.transmitter.Transmitter;
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 
 import gov.noaa.nws.bmh_edge.BmhEdgeCamelApplication;
+import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
+import gov.noaa.nws.bmh_edge.audio.mp3.AudioPlayer;
 import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
 
 
@@ -33,58 +35,67 @@ import java.util.stream.Stream;
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = BmhEdgeCamelApplication.class)
 @EnableRouteCoverage
-public class GoogleTextToSpeechTest extends CamelTestSupport {
+public class GoogleTextToSpeechTest {//extends CamelTestSupport {
 	private static final Logger logger = LoggerFactory.getLogger(GoogleTextToSpeechTest.class);
 	
-	private static EmbeddedBroker broker ;
-	private static DacPlaylistMessageMetadata message;
-	@Autowired
-	private CamelContext camelContext;
+//	private static EmbeddedBroker broker ;
+//	private static DacPlaylistMessageMetadata message;
+//	@Autowired
+//	private CamelContext camelContext;
 
 	static final protected String GOOGLE_API_CONTENT = "BMH EDGE Test";
 	
-	static {
-		try {
-			broker = new EmbeddedBroker();
-			
-			message = new DacPlaylistMessageMetadata();
-			message.setMessageText(GoogleTextToSpeechTest.GOOGLE_API_CONTENT);
-			message.setSoundFiles(Arrays.asList("./mp3/test.out"));
-			
-			// to remove thrift warning
-			System.setProperty("thrift.stream.maxsize", "200");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	static {
+//		try {
+//			broker = new EmbeddedBroker();
+//			
+//			message = new DacPlaylistMessageMetadata();
+//			message.setMessageText(GoogleTextToSpeechTest.GOOGLE_API_CONTENT);
+//			message.setSoundFiles(Arrays.asList("./mp3/test.out"));
+//			
+//			// to remove thrift warning
+//			System.setProperty("thrift.stream.maxsize", "200");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	@AfterClass
+//    public static void shutdown() {
+//        broker.shutdown();
+//    }
+//
+//	// Must have to utilized beans created through dependency injection
+//	// Used with ProducerTemplates.
+//	@Override
+//	protected CamelContext createCamelContext() throws Exception {
+//		return camelContext;
+//	}
+
 	
-	@AfterClass
-    public static void shutdown() {
-        broker.shutdown();
-    }
-
-	// Must have to utilized beans created through dependency injection
-	// Used with ProducerTemplates.
-	@Override
-	protected CamelContext createCamelContext() throws Exception {
-		return camelContext;
-	}
-
+//	@Test
+//	private void testSynthesizeBroadcastMsgCreation() throws Exception {
+//		MockEndpoint mock = getMockEndpoint("mock:audioresponse");
+//		mock.expectedMinimumMessageCount(1);
+//
+//		try {
+//			template.sendBody("seda:audio", message);
+//			Thread.sleep(10000);
+//			//ByteString resultAudio= mock.getExchanges().get(0).getIn().getBody(ByteString.class);
+//		} catch (CamelExecutionException x) {
+//			x.printStackTrace();
+//		}
+//
+//		// assert expectations
+//		assertMockEndpointsSatisfied();
+//	}
 	
 	@Test
-	public void testSynthesizeBroadcastMsgCreation() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:audioresponse");
-		mock.expectedMinimumMessageCount(1);
-
-		try {
-			template.sendBody("seda:audio", message);
-			Thread.sleep(10000);
-			//ByteString resultAudio= mock.getExchanges().get(0).getIn().getBody(ByteString.class);
-		} catch (CamelExecutionException x) {
-			x.printStackTrace();
-		}
-
-		// assert expectations
-		assertMockEndpointsSatisfied();
+	public void testSimpleSynthesizeText() throws Exception {
+		SynthesizeText tts = new SynthesizeText();
+		AudioPlayer player = new AudioPlayer();
+		
+		tts.synthesizeText("This is a simple test of TTS", "./test.mp3");
+		player.play("./test.mp3");
 	}
 }

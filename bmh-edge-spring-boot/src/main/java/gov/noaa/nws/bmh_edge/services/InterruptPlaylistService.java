@@ -14,7 +14,6 @@ import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageId;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class InterruptPlaylistService.
  */
@@ -71,17 +70,15 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 		try {
 			printCurrentPlaylist();
 		} catch (JAXBException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 		// check for setRecognized to determine if audio file is available
-		getCurrent().getMessages().forEach((k) -> {
+		getCurrent().getMessages().forEach((playList) -> {
 			try {
-				logger.info(String.format("Playing Interrupt Broadcast -> %s", k.getTraceId()));
-				play(k);
+				logger.info(String.format("Playing Interrupt Broadcast -> %s", playList.getTraceId()));
+				play(playList);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		});
 

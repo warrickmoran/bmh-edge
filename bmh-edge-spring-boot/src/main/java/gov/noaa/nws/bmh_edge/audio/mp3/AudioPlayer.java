@@ -9,10 +9,12 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 
@@ -23,6 +25,7 @@ import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
  * The Class AudioPlayer.
  */
 //
+@Component
 public class AudioPlayer {
 	
 	/** The Constant logger. */
@@ -32,7 +35,14 @@ public class AudioPlayer {
 	private static Object lock;
 	
 	/** The din. */
-	AudioInputStream din;
+	private AudioInputStream din;
+	
+	//@Autowired
+	//private YAMLBmhConfig myConfig;
+	
+	static {
+		lock = new Object();
+	}
 
 	/**
 	 * Gets the din.
@@ -51,6 +61,14 @@ public class AudioPlayer {
 	public void setDin(AudioInputStream din) {
 		this.din = din;
 	}
+
+//	public YAMLBmhConfig getMyConfig() {
+//		return myConfig;
+//	}
+//
+//	public void setMyConfig(YAMLBmhConfig myConfig) {
+//		this.myConfig = myConfig;
+//	}
 
 	/**
 	 * Method for playing MP3 linked to BMH BroadcastMsg.
@@ -72,6 +90,7 @@ public class AudioPlayer {
 	 */
 	public void play(String filename) throws Exception {
 		synchronized(AudioPlayer.lock) {
+			logger.info(String.format("Audio Play using Filename --> %s", filename));
 			play(new File(filename));
 		}
 	}
@@ -141,7 +160,6 @@ public class AudioPlayer {
 			line.close();
 			getDin().close();
 		}
-
 	}
 
 	/**
@@ -154,8 +172,22 @@ public class AudioPlayer {
 	private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException {
 		SourceDataLine res = null;
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-		res = (SourceDataLine) AudioSystem.getLine(info);
-		res.open(audioFormat);
+		
+		for(Mixer.Info mixer: AudioSystem.getMixerInfo()) {
+			res = (SourceDataLine) AudioSystem.getMixer(mixer).getLine(info);
+			logger.debug(String.format("Mixer Info (name): %s:%s", mixer.getName(),res));
+			if (mixer.getName().contains("hw:1")) {  // need to retrieve from yaml file
+				logger.info(String.format("Selected Sound Card %s:%s", mixer,info));
+				break;
+			}
+		}
+
+		//res = (SourceDataLine) AudioSystem.getLine(info);
+		if (res != null) {
+			res.open(audioFormat);
+		} else {
+			logger.error("No Available Sound Cards");
+		}
 		return res;
 	}
 }

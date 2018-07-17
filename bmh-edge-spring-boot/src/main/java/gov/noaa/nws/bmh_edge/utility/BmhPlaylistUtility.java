@@ -1,21 +1,19 @@
 package gov.noaa.nws.bmh_edge.utility;
 
+import java.io.File;
+
 import javax.annotation.Resource;
 
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 
 import gov.noaa.nws.bmh_edge.services.InterruptPlaylistService;
 import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
-import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BmhPlaylistUtility.
  */
@@ -115,12 +113,43 @@ public class BmhPlaylistUtility {
 	public void addMessage(DacPlaylistMessageMetadata message) throws Exception {
 		// set recognized to false which will allow TTS
 		message.setRecognized(false);
+		String onlyFileName = BmhPlaylistUtility.extractFileName(message.getSoundFiles().get(0));
+		
+		if (onlyFileName.isEmpty()) {
+			throw new Exception("DacPlalistMessageMetadata missing Audio Filename");
+		} else {
+			message.getSoundFiles().set(0, onlyFileName);
+		}
 		
 		getService().add(message);
 		
 		if (getService().getCurrent() != null) {
 			startBroadcast();
 		}
+	}
+	
+	/**
+	 * Adds the message.
+	 *
+	 * @param message the message
+	 * @param fileName the file name
+	 * @throws Exception the exception
+	 */
+	public void addMessage(byte[] message, String fileName) throws Exception {
+		logger.info("Added Audio Message");
+		byte[] audio = (byte[]) SerializationUtil.transformFromThrift(message);
+		getService().add(audio, fileName);
+	}
+	
+	/**
+	 * Extract file name.
+	 *
+	 * @param filename the filename
+	 * @return the string
+	 */
+	public static String extractFileName(String filename) {
+		File file = new File (filename);
+		return file.getName();
 	}
 	
 	/**
@@ -134,8 +163,7 @@ public class BmhPlaylistUtility {
 				service.broadcastCycle();
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 }

@@ -27,14 +27,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
-import gov.noaa.nws.bmh_edge.services.events.PlayListIngestEvent;
 
 // TODO: Auto-generated Javadoc
 //CHECKSTYLE:OFF

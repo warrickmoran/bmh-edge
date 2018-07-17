@@ -29,34 +29,34 @@ import com.google.protobuf.ByteString;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: Auto-generated Javadoc
 /**
  * Google Cloud TextToSpeech API sample application.
  * https://github.com/GoogleCloudPlatform/java-docs-samples/blob/master/texttospeech/cloud-client/
  */
 public class SynthesizeText {
-	
+
 	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(SynthesizeText.class);
 
 	/**
 	 * Demonstrates using the Text to Speech client to synthesize text or ssml.
 	 *
-	 * @param text            the raw text to be synthesized. (e.g., "Hello there!")
-	 * @param filename the filename
+	 * @param text
+	 *            the raw text to be synthesized. (e.g., "Hello there!")
+	 * @param filename
+	 *            the filename
 	 * @return the boolean
-	 * @throws Exception             on TextToSpeechClient Errors.
+	 * @throws Exception
+	 *             on TextToSpeechClient Errors.
 	 */
 	public Boolean synthesizeText(String text, String filename) throws Exception {
 
 		if (text.isEmpty()) {
 			throw new Exception("Empty String");
-		} else if (!createOutputDirectory(filename)) {
+		} else if (!SynthesizeText.createOutputDirectory(filename)) {
 			throw new Exception("Unable to Create MP3 Output Directory");
 		}
 
@@ -82,8 +82,8 @@ public class SynthesizeText {
 			ByteString audioContents = response.getAudioContent();
 
 			// Write the response to the output file.
-			try (OutputStream out = new FileOutputStream(filename)) {
-				out.write(audioContents.toByteArray());
+			try {
+				SynthesizeText.writeAudioContent(audioContents.toByteArray(), filename);
 				logger.info(String.format("Audio content written to file %s", filename));
 			} catch (Exception ex) {
 				logger.error(String.format("%s", ex.getMessage()));
@@ -93,22 +93,43 @@ public class SynthesizeText {
 			return Boolean.TRUE;
 		}
 	}
-	
+
 	/**
 	 * Creates the output directory.
 	 *
-	 * @param filename the filename
+	 * @param filename
+	 *            the filename
 	 * @return the boolean
 	 */
-	private Boolean createOutputDirectory(String filename) {
+	public static Boolean createOutputDirectory(String filename) {
 		File file = new File(filename);
 		File parent = file.getParentFile();
 		Boolean ret = true;
-		
+
 		if (!file.exists() && !parent.exists()) {
 			ret = parent.mkdirs();
-		} 
-		
+		}
+
 		return ret;
+	}
+
+	public static void writeAudioContent(byte[] audio, String fileName) throws Exception {
+		// Write the response to the output file.
+		try (OutputStream out = new FileOutputStream(fileName)) {
+			out.write(audio);
+			logger.info(String.format("Audio content written to file %s", fileName));
+		} catch (Exception ex) {
+			logger.error(String.format("%s", ex.getMessage()));
+		}
+	}
+	
+	public static Boolean checkForAudioContent(String fileName) {
+		File file = new File(fileName);
+		
+		if (!file.exists()) {
+			return false;
+		}
+		
+		return true;
 	}
 }
