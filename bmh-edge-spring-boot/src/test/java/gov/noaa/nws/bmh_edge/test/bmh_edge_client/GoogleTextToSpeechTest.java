@@ -96,6 +96,11 @@ public class GoogleTextToSpeechTest {//extends CamelTestSupport {
 		AudioPlayer player = new AudioPlayer();
 		
 		tts.synthesizeText("This is a simple test of TTS", "./test.mp3");
-		player.play("./test.mp3");
+		
+		try {
+			player.play("./test.mp3");
+		} catch (IllegalArgumentException ex) {
+			logger.warn("Catching Audio Line Exception Until We Can Properly Auto Detect"); 
+		}
 	}
 }

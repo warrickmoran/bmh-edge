@@ -102,7 +102,7 @@ public class AudioPlayer {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws LineUnavailableException the line unavailable exception
 	 */
-	public void play(byte[] stream) throws IOException, LineUnavailableException {
+	public void play(byte[] stream) throws IOException, LineUnavailableException, IllegalArgumentException {
 		AudioFormat format = new AudioFormat(Encoding.ULAW,
                 8000, 8, 1, 1, 8000, true);
 
@@ -141,7 +141,7 @@ public class AudioPlayer {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws LineUnavailableException the line unavailable exception
 	 */
-	private void rawplay(AudioFormat targetFormat) throws IOException, LineUnavailableException {
+	private void rawplay(AudioFormat targetFormat) throws IOException, LineUnavailableException, IllegalArgumentException {
 		byte[] data = new byte[4096];
 		SourceDataLine line = getLine(targetFormat);
 		if (line != null) {
@@ -169,7 +169,7 @@ public class AudioPlayer {
 	 * @return the line
 	 * @throws LineUnavailableException the line unavailable exception
 	 */
-	private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException {
+	private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException, IllegalArgumentException {
 		SourceDataLine res = null;
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
 		
