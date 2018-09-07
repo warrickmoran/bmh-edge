@@ -9,6 +9,9 @@ GOOGLE_APPLICATION_CREDENTIALS=<credentials>.json
 The BMH-EDGE-GOOGLE.zip file contains an example Google API credential file for demo purposes.   
 Please contact the BMH-EDGE development team for password information.  
 
+# Export environment variable for command line execution
+export GOOGLE_APPLICATION_CREDENTIALS=<cloned-directory>/bmh-edge/bmh-edge-spring-boot/BMH-EDGE-7fbcada789e1.json
+
 # Spring Boot Debugging
 https://docs.spring.io/spring-boot/docs/current/maven-plugin/examples/run-debug.html
 
@@ -22,6 +25,7 @@ From ~/parent
 mvn clean install
 
 ## How to run
+The edge application is located within the <cloned-directory>/bmh-edge/bmh-edge-spring-boot directory.   
 
 ## remote run (assuming remote host is bmh2)  
     mvn spring-boot:run -Dspring-boot.run.profiles=prod
