@@ -121,7 +121,7 @@ public class AudioPlayer {
 	 */
 	public void play(byte[] stream)
 			throws IOException, LineUnavailableException, AudioConversionException, UnsupportedAudioFormatException {
-		AudioFormat format = new AudioFormat(Encoding.PCM_SIGNED,
+		AudioFormat format = new AudioFormat(Encoding.ULAW,
                 8000, 8, 1, 1, 8000, true);
 
 		AudioInputStream in =
@@ -165,7 +165,7 @@ public class AudioPlayer {
 	 * @throws LineUnavailableException
 	 *             the line unavailable exception
 	 */
-	private void rawplay(AudioFormat targetFormat) throws IOException, LineUnavailableException {
+	private void rawplay(AudioFormat targetFormat) throws IOException, LineUnavailableException, IllegalArgumentException {
 		byte[] data = new byte[4096];
 		SourceDataLine line = getLine(targetFormat);
 		if (line != null) {
@@ -197,7 +197,7 @@ public class AudioPlayer {
 	 * @throws LineUnavailableException
 	 *             the line unavailable exception
 	 */
-	private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException {
+	private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException, IllegalArgumentException {
 		SourceDataLine res = null;
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
 

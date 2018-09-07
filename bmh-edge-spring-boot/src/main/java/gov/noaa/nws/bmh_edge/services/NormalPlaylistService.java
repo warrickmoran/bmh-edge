@@ -332,8 +332,11 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 
 			logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
 			logger.info(String.format("Message Content -> %s", message.getMessageText()));
-
-			getPlayer().play(message.getSoundFiles().get(0));
+			try {
+				getPlayer().play(message.getSoundFiles().get(0));
+			} catch (Exception ex) {
+				logger.error(String.format("Unable Play %s Audio: %s", message.getSoundFiles().get(0), ex.getMessage()));
+			}
 		}
 
 		if (isExpired(id.getBroadcastId())) {

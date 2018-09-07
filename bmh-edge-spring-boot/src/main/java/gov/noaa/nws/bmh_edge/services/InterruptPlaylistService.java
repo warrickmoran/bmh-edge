@@ -149,7 +149,11 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 				}
 				
 				// play mp3
-				getPlayer().play(getBroadcast().getSoundFiles().get(0));
+				try {
+					getPlayer().play(getBroadcast().getSoundFiles().get(0));
+				} catch (Exception ex) {
+					logger.error(String.format("Unable Play %s Audio: %s", getBroadcast().getSoundFiles().get(0), ex.getMessage()));
+				}
 				
 				if(getBroadcast().isSAMETones()) {
 					logger.info(String.format("Playing EndTones -> %s", getBroadcast().getMessageText()));

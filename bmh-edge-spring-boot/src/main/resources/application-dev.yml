@@ -1,6 +1,6 @@
 # the name of Camel
-name: BMHEDGE-BUILD
-environment: build
+name: BMHEDGE-PROD
+environment: dev
 camel:
   springboot:
     name: BMHEDGE
@@ -8,7 +8,7 @@ camel:
     
 # configure h2 web service (http://localhost:8080/h2-console)
 spring:
-  profiles: default
+  profiles: dev
   h2:
     console:
       enabled: true
@@ -38,7 +38,6 @@ bmh:
   transmitter:
     id: HGR
     lineOut: hw:1
-    id_msg: "This is transmitter %s"
 
 # how often to trigger the timer
 timer:
