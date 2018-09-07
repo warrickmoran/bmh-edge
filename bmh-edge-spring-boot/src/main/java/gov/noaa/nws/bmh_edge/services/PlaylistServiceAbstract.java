@@ -93,7 +93,6 @@ public abstract class PlaylistServiceAbstract {
 	 */
 	protected abstract void play(DacPlaylistMessageId id) throws Exception;
 	
-
 	/**
 	 * Instantiates a new playlist service abstract.
 	 */

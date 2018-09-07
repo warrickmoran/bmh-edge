@@ -148,6 +148,7 @@ public class InterruptPlaylistService extends PlaylistServiceAbstract {
 					
 				}
 				
+				// play mp3
 				getPlayer().play(getBroadcast().getSoundFiles().get(0));
 				
 				if(getBroadcast().isSAMETones()) {

@@ -50,7 +50,7 @@
 	</bean>
 
 	<camelContext id="BmhEdge"
-		xmlns="http://camel.apache.org/schema/spring" trace="true">
+		xmlns="http://camel.apache.org/schema/spring" trace="false">
 		<dataFormats>
 			<!-- here we define a Json data format with the id jack. -->
 			<json id="googleAPIJson" library="Jackson" />

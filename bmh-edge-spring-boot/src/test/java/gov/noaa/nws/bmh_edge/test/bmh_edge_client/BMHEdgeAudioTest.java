@@ -35,8 +35,8 @@ import java.util.stream.Stream;
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = BmhEdgeCamelApplication.class)
 @EnableRouteCoverage
-public class GoogleTextToSpeechTest {//extends CamelTestSupport {
-	private static final Logger logger = LoggerFactory.getLogger(GoogleTextToSpeechTest.class);
+public class BMHEdgeAudioTest {//extends CamelTestSupport {
+	private static final Logger logger = LoggerFactory.getLogger(BMHEdgeAudioTest.class);
 	
 //	private static EmbeddedBroker broker ;
 //	private static DacPlaylistMessageMetadata message;
@@ -97,5 +97,12 @@ public class GoogleTextToSpeechTest {//extends CamelTestSupport {
 		
 		tts.synthesizeText("This is a simple test of TTS", "./test.mp3");
 		player.play("./test.mp3");
+	}
+	
+	@Test 
+	public void testULawAudio() throws Exception {
+		AudioPlayer player = new AudioPlayer();
+		
+		player.play("./audio/ulaw/LWXSVRLWX_LiveMsg.ul");
 	}
 }

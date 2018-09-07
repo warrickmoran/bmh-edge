@@ -20,8 +20,11 @@ import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageId;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 
 import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
+import gov.noaa.nws.bmh_edge.utility.YAMLBmhConfig;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * The Class NormalPlaylistService.
@@ -43,6 +46,9 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 	@Resource
 	private InterruptPlaylistService interruptService;
 
+	@Autowired
+	private YAMLBmhConfig properties;
+
 	static {
 		interrupt = new AtomicBoolean();
 		interrupt.set(false);
@@ -51,6 +57,7 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 	/**
 	 * Instantiates a new normal playlist service.
 	 */
+	@Autowired
 	public NormalPlaylistService() {
 		super();
 		broadcast = new ConcurrentHashMap<Long, DacPlaylistMessageMetadata>();
@@ -126,18 +133,31 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 				} catch (JAXBException e1) {
 					logger.error(e1.getMessage());
 				}
-				// check for setRecognized to determine if audio file is available
-				getCurrent().getMessages().forEach((playListMessage) -> {
-					try {
-						expiration();
-						play(playListMessage);
 
-						// add pause between messages
-						Thread.sleep(3000);
-					} catch (Exception e) {
-						logger.error(e.getMessage());
-					}
-				});
+				// pull tx id message
+				//try {
+				//	getPlayer().play(getBroadcast().get(new Long(0)).getSoundFiles().get(0));
+					// add pause between messages
+				//	Thread.sleep(2000);
+				//} catch (Exception e1) {
+				//	logger.error(String.format("Unable to locate transmitter id message"));
+				//}
+				
+				// tx id message will play with or without playlist
+				if (getCurrent() != null) {
+					// check for setRecognized to determine if audio file is available
+					getCurrent().getMessages().forEach((playListMessage) -> {
+						try {
+							expiration();
+							play(playListMessage);
+
+							// add pause between messages
+							Thread.sleep(2000);
+						} catch (Exception e) {
+							logger.error(e.getMessage());
+						}
+					});
+				}
 			}
 
 			logger.info("Exiting Broadcast Cycle");
@@ -156,20 +176,21 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 	 * common.bmh.datamodel.playlist.DacPlaylist)
 	 */
 	public void add(DacPlaylist playList) throws Exception {
+		logger.info(String.format("Setting Current Playlist -> %s", playList.getTraceId()));
+
+		if (!playList.isInterrupt()) {
+			setCurrent(playList);
+		} else {
+			// set interrupt play list for possible play
+			getInterruptService().add(playList);
+		}
+
 		if ((getCurrent() != null) && (getBroadcast() != null)) {
 			for (DacPlaylistMessageId id : playList.getMessages()) {
 				if (!getCurrent().getMessages().contains(id)) {
 					remove(id.getBroadcastId());
 				}
 			}
-		}
-
-		logger.info(String.format("Setting Current Playlist -> %s", playList.getTraceId()));
-		if (!playList.isInterrupt()) {
-			setCurrent(playList);
-		} else {
-			// set interrupt play list for possible play
-			getInterruptService().add(playList);
 		}
 	}
 
@@ -189,8 +210,8 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 		if (googleSpeech != null) {
 			// add parent directory to filename
 			// BMH only provides filename for EO messages within MetaData
-			message.getSoundFiles().set(0,
-					String.format("%s%s%s", getGoogleSpeech().getAudioOut(),File.separator,message.getSoundFiles().get(0)));
+			message.getSoundFiles().set(0, String.format("%s%s%s", getGoogleSpeech().getAudioOut(), File.separator,
+					message.getSoundFiles().get(0)));
 			if (!message.getMessageText().matches("#Recorded(.*)")) {
 				// TTS
 				googleSpeech.createTextToSpeechBean(message);
@@ -198,8 +219,11 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 				// check for audio file
 				if (SynthesizeText.checkForAudioContent(message.getSoundFiles().get(0))) {
 					message.setRecognized(true);
+					logger.info(String.format("Audio File for %d (%s) found", message.getBroadcastId(),
+							message.getSoundFiles().get(0)));
 				} else {
-					logger.info(String.format("Audio File for %d (%s) creating in progress...", message.getBroadcastId(), message.getSoundFiles().get(0))); 
+					logger.info(String.format("Audio File for %d (%s) creation in progress...",
+							message.getBroadcastId(), message.getSoundFiles().get(0)));
 				}
 			}
 		} else {
@@ -223,23 +247,18 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 	 *             the exception
 	 */
 	public void add(byte[] message, String fileName) throws Exception {
-		String updatedFileName = String.format("%s%s%s", getGoogleSpeech().getAudioOut(),File.separator,fileName);
+		String updatedFileName = String.format("%s%s%s", getGoogleSpeech().getAudioOut(), File.separator, fileName);
 		SynthesizeText.writeAudioContent(message, updatedFileName);
 
 		// find DacPlaylistMessageMetadata to set audio as available
 		if (!fileName.isEmpty()) {
-			DacPlaylistMessageMetadata broadcastMessageMetadata = getBroadcast().searchValues(1,
-					messageMetadata -> messageMetadata.getSoundFiles().get(0).compareToIgnoreCase(updatedFileName) == 0
-							? messageMetadata
-							: null);
-			
-			if (broadcastMessageMetadata != null) {
-				logger.info(String.format("Found Message Metadata match for audio file %s", updatedFileName));
-				broadcastMessageMetadata.setRecognized(true);
-				setInterrupt(broadcastMessageMetadata);
-			} else {
-				logger.error(String.format("Unable to locate Message Metadata for audio file %s", updatedFileName));
-			}
+			getBroadcast().forEach((id, metadata) -> {
+				logger.info(String.format("%s -> %s", metadata.getSoundFiles().get(0), updatedFileName));
+				if (metadata.getSoundFiles().get(0).compareToIgnoreCase(updatedFileName) == 0) {
+					metadata.setRecognized(true);
+					logger.info(String.format("Found Message Metadata match for audio file %s", updatedFileName));
+				}
+			});
 		}
 	}
 
@@ -284,10 +303,15 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 	 * Long)
 	 */
 	protected Boolean isExpired(Long id) {
+		Boolean ret = true;
+
 		if (getBroadcast().containsKey(id)) {
-			return getBroadcast().get(id).getExpire().compareTo(Calendar.getInstance()) < 0;
+			logger.info(String.format("Expiration Time: %s vs Current Time: %s",
+					getBroadcast().get(id).getExpire().getTime().toString(),
+					Calendar.getInstance().getTime().toString()));
+			ret = getBroadcast().get(id).getExpire().compareTo(Calendar.getInstance()) < 0;
 		}
-		return false;
+		return ret;
 	}
 
 	/*
@@ -308,14 +332,12 @@ public class NormalPlaylistService extends PlaylistServiceAbstract {
 
 			logger.info(String.format("Playing Message -> %d", id.getBroadcastId()));
 			logger.info(String.format("Message Content -> %s", message.getMessageText()));
-			getPlayer().play(message.getSoundFiles().get(0));
 
-		} else {
-			if (isExpired(id.getBroadcastId())) {
-				logger.info(String.format("Message Expired -> %d", id.getBroadcastId()));
-			} else {
-				logger.error(String.format("Message Unavailable -> %d", id.getBroadcastId()));
-			}
+			getPlayer().play(message.getSoundFiles().get(0));
+		}
+
+		if (isExpired(id.getBroadcastId())) {
+			logger.info(String.format("Message Expired -> %d", id.getBroadcastId()));
 		}
 	}
 

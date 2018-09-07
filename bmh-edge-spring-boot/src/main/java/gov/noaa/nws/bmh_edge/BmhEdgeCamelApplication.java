@@ -23,14 +23,18 @@ import javax.annotation.Resource;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
 
@@ -43,6 +47,7 @@ import gov.noaa.nws.bmh_edge.services.NormalPlaylistService;
 @EnableAsync
 // load the spring xml file from classpath
 @ImportResource("classpath:bmh-edge-camel.xml")
+@EnableConfigurationProperties(gov.noaa.nws.bmh_edge.utility.YAMLBmhConfig.class)
 public class BmhEdgeCamelApplication {
 	
 	/** The Constant logger. */

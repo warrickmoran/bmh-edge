@@ -37,6 +37,7 @@ bmh:
   transmitter:
     id: HGR
     lineOut: hw:1
+    id_msg: "This is transmitter %s"
 
 # how often to trigger the timer
 timer:

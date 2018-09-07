@@ -1,12 +1,16 @@
 package gov.noaa.nws.bmh_edge.utility;
 
 import java.io.File;
+import java.util.Calendar;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylist;
 import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -32,6 +36,9 @@ public class BmhPlaylistUtility {
 	/** The interrupt service. */
 	@Resource
 	private InterruptPlaylistService interruptService;
+	
+	@Autowired
+	private YAMLBmhConfig properties;
 
 	/**
 	 * Gets the transmitter ID.
@@ -58,7 +65,7 @@ public class BmhPlaylistUtility {
 	 *
 	 * @return the service
 	 */
-	public NormalPlaylistService getService() {
+	public synchronized NormalPlaylistService getService() {
 		return service;
 	}
 
@@ -123,6 +130,7 @@ public class BmhPlaylistUtility {
 		
 		getService().add(message);
 		
+		// play transmitter id message with or without active playlist
 		if (getService().getCurrent() != null) {
 			startBroadcast();
 		}
@@ -152,15 +160,28 @@ public class BmhPlaylistUtility {
 		return file.getName();
 	}
 	
+//	@PostConstruct
+//	public void initIt() throws Exception {
+//		logger.info(String.format("BMH Playlist Utility Post Construct"));
+//		DacPlaylistMessageMetadata txIdMessage = new DacPlaylistMessageMetadata();
+//		txIdMessage.addSoundFile(String.format("txid-%s", getTransmitterID()));
+//		txIdMessage.setBroadcastId(0);
+//		txIdMessage.setMessageText(properties.getId_msg());
+//		Calendar neverExpire = Calendar.getInstance();
+//		neverExpire.set(2100, 1, 1);
+//		txIdMessage.setExpire(neverExpire);
+//		addMessage(txIdMessage);
+//	}
+	
 	/**
 	 * Start broadcast.
 	 */
 	private void startBroadcast() {
 		try {
 			logger.info("Play Event Received");
-			if (!service.getActive().get() && (service.getCurrent() != null)) {
+			if (!getService().getActive().get()) {// && (service.getCurrent() != null)) {
 				logger.info("Activating Broadcast Cycle");
-				service.broadcastCycle();
+				getService().broadcastCycle();
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
