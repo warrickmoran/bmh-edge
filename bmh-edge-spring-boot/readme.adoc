@@ -28,10 +28,10 @@ mvn clean install
 The edge application is located within the <cloned-directory>/bmh-edge/bmh-edge-spring-boot directory.   
 
 ## remote run (assuming remote host is bmh2)  
-    mvn spring-boot:run -Dspring-boot.run.profiles=prod
+    mvn spring-boot:run -Dspring.profiles.active=prod
  
 ## local run
-    mvn spring-boot:run -Dspring-boot.run.profiles=dev
+    mvn spring-boot:run -Dspring.profiles.active=dev
     
     
 ## Under Development ##
