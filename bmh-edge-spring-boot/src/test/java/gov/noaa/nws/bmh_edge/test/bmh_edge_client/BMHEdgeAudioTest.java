@@ -1,36 +1,17 @@
 package gov.noaa.nws.bmh_edge.test.bmh_edge_client;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.CamelExecutionException;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.apache.camel.test.spring.EnableRouteCoverage;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsgGroup;
-import com.raytheon.uf.common.bmh.datamodel.msg.InputMessage;
-import com.raytheon.uf.common.bmh.datamodel.playlist.DacPlaylistMessageMetadata;
-import com.raytheon.uf.common.bmh.datamodel.transmitter.Transmitter;
-import com.raytheon.uf.common.bmh.datamodel.msg.BroadcastMsg;
 
 import gov.noaa.nws.bmh_edge.BmhEdgeCamelApplication;
 import gov.noaa.nws.bmh_edge.audio.googleapi.SynthesizeText;
 import gov.noaa.nws.bmh_edge.audio.mp3.AudioPlayer;
-import gov.noaa.nws.bmh_edge.test.qpid_server.EmbeddedBroker;
-
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.sound.sampled.LineUnavailableException;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = BmhEdgeCamelApplication.class)
@@ -99,7 +80,7 @@ public class BMHEdgeAudioTest {//extends CamelTestSupport {
 		
 		try {
 			player.play("./test.mp3");
-		} catch (IllegalArgumentException ex) {
+		} catch (IllegalArgumentException | LineUnavailableException ex) {
 			logger.warn("Catching Audio Line Exception Until We Can Properly Auto Detect"); 
 		}
 	}
@@ -109,7 +90,7 @@ public class BMHEdgeAudioTest {//extends CamelTestSupport {
 		
 		try {
 			player.play("./audio/ulaw/LWXSVRLWX_LiveMsg.ul");
-		} catch (IllegalArgumentException ex) {
+		} catch (IllegalArgumentException | LineUnavailableException ex) {
 			logger.warn("Catching Audio Line Exception Until We Can Properly Auto Detect"); 
 		}
 	}

@@ -33,7 +33,7 @@ google:
 # --------------------------------------------
 bmh:
   qpid:
-    host: bmh2
+    host: localhost
     queue: BMH.EDGE
   transmitter:
     id: HGR

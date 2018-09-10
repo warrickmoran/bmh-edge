@@ -198,14 +198,13 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>1.5.9.RELEASE</version>
 				<configuration>
-					<jvmArguments>
-						-Xdebug
-						-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
-					</jvmArguments>
-					<profiles>
-						<profile>prod</profile>
-						<profile>dev</profile>
-					</profiles>
+					<!-- Debug arguments but this will enable forking -->
+<!-- 					<jvmArguments> -->
+<!-- 						-Xdebug -->
+<!-- 						-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -->
+<!-- 					</jvmArguments> -->
+					<!-- must set to false to allow profiles to be set from command line -->
+					<fork>false</fork>
 				</configuration>
 				<executions>
 					<execution>

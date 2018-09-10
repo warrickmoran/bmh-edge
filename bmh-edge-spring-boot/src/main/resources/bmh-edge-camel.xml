@@ -22,7 +22,6 @@
 			value="amqp://${bmh.qpid.host}:5672" />
 		<property name="username" value="guest" />
 		<property name="password" value="guest" />
-		<property name="clientID" value="test" />
 	</bean>
 
 	<!-- Camel AMQP Component configuration -->
